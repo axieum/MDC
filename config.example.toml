@@ -1,0 +1,24 @@
+
+#General configuration
+[general]
+
+	[general.bot]
+		#Discord Bot Token
+		token = ""
+
+#Channel configurations
+[[channel]]
+	id = 242318118340805120
+	dimensions = [0]
+
+	[channels.messages]
+		join = "Player joined."
+
+[[channel]]
+	id = 262311018300915141
+	dimensions = [-1, 1]
+
+	[channel.messages]
+		stopped = "Server stopped."
+		started = "Server started!"
+
