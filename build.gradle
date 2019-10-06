@@ -67,6 +67,11 @@ minecraft {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${FORGE_VERSION}"
+    compile "net.dv8tion:JDA:${JDA_VERSION}"
+}
+
+repositories {
+    jcenter()
 }
 
 jar {
