@@ -1,5 +1,6 @@
 package me.axieum.mcmod.mdc;
 
+import me.axieum.mcmod.mdc.event.EventServerStarted;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -12,10 +13,7 @@ import javax.annotation.Nonnull;
 public class DiscordClient extends ListenerAdapter
 {
     private static DiscordClient instance;
-    private JDA jda;
-
-    // JDA client ready status - has it connected yet?
-    private boolean ready;
+    private JDA api;
 
     /**
      * Retrieve the static Discord Client instance.
@@ -35,9 +33,9 @@ public class DiscordClient extends ListenerAdapter
      *
      * @return JDA instance else null if none exists
      */
-    public JDA getJda()
+    public JDA getApi()
     {
-        return jda;
+        return api;
     }
 
     /**
@@ -47,7 +45,7 @@ public class DiscordClient extends ListenerAdapter
      */
     public boolean isReady()
     {
-        return ready && jda != null;
+        return api != null && !api.getStatus().isInit();
     }
 
     /**
@@ -59,14 +57,14 @@ public class DiscordClient extends ListenerAdapter
     public boolean connect(String token)
     {
         // Are we already connected?
-        if (jda != null) {
+        if (api != null) {
             MDC.LOGGER.debug("Discord bot is already connected!");
             return false;
         }
 
         // Build a new JDA instance and hence connect
         try {
-            jda = new JDABuilder(AccountType.BOT)
+            api = new JDABuilder(AccountType.BOT)
                     .setToken(token)
                     .setStatus(OnlineStatus.IDLE)
                     .addEventListeners(this)
@@ -88,15 +86,14 @@ public class DiscordClient extends ListenerAdapter
     public boolean disconnect()
     {
         // Are we already disconnected?
-        if (jda == null) {
+        if (api == null) {
             MDC.LOGGER.debug("Discord bot is already disconnected!");
             return false;
         }
 
         // Shutdown the JDA instance and hence delete its reference
-        jda.shutdown();
-        jda = null;
-        ready = false;
+        api.shutdown();
+        api = null;
         MDC.LOGGER.debug("Discord bot disconnected");
         return true;
     }
@@ -110,7 +107,7 @@ public class DiscordClient extends ListenerAdapter
     public boolean reconnect(String token)
     {
         // Do we need to disconnect?
-        if (jda != null)
+        if (api != null)
             disconnect();
 
         MDC.LOGGER.debug("Discord bot reconnecting...");
@@ -128,8 +125,14 @@ public class DiscordClient extends ListenerAdapter
     {
         super.onReady(event);
 
-        MDC.LOGGER.info("Logged into Discord as {}", jda.getSelfUser().getAsTag());
-        jda.getPresence().setStatus(OnlineStatus.ONLINE);
-        ready = true;
+        MDC.LOGGER.info("Logged into Discord as {}", api.getSelfUser().getAsTag());
+        api.getPresence().setStatus(OnlineStatus.ONLINE);
+
+        // Cascade ready state to server started
+        // NB: Most of the time, the server started event is invoked before the
+        // Discord bot has established a connection - essentially losing the
+        // message. By invoking our actions once the bot is ready, it can be
+        // assumed that the server has started.
+        EventServerStarted.invoke();
     }
 }

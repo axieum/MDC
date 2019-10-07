@@ -103,7 +103,7 @@ public class Config
         // Did the bot token update?
         final String token = BOT_TOKEN.get();
         final DiscordClient dc = DiscordClient.getInstance();
-        if (dc.isReady() && !dc.getJda().getToken().equals(token))
+        if (dc.isReady() && !dc.getApi().getToken().equals(token))
             dc.reconnect(token);
     }
 }
