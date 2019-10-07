@@ -102,6 +102,23 @@ public class DiscordClient extends ListenerAdapter
     }
 
     /**
+     * Reconnect the Discord Bot.
+     *
+     * @param token Discord Bot token
+     * @return true if the bot successfully reconnected
+     */
+    public boolean reconnect(String token)
+    {
+        // Do we need to disconnect?
+        if (jda != null)
+            disconnect();
+
+        MDC.LOGGER.debug("Discord bot reconnecting...");
+
+        return connect(token);
+    }
+
+    /**
      * On ready event, mark the instance as ready.
      *
      * @param event JDA ready event

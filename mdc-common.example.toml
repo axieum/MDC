@@ -7,18 +7,18 @@
 		token = ""
 
 #Channel configurations
-[[channel]]
+[[channels]]
 	id = 242318118340805120
 	dimensions = [0]
 
 	[channels.messages]
 		join = "Player joined."
 
-[[channel]]
+[[channels]]
 	id = 262311018300915141
 	dimensions = [-1, 1]
 
-	[channel.messages]
+	[channels.messages]
 		stopped = "Server stopped."
 		started = "Server started!"
 

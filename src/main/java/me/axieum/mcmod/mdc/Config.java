@@ -1,15 +1,21 @@
 package me.axieum.mcmod.mdc;
 
+import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.conversion.ObjectConverter;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
-import me.axieum.mcmod.mdc.api.ChannelConfig;
+import me.axieum.mcmod.mdc.api.ChannelsConfig;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import net.minecraftforge.fml.config.ModConfig;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+@Mod.EventBusSubscriber(bus = Bus.MOD)
 public class Config
 {
     private static final ForgeConfigSpec.Builder COMMON_BUILDER = new ForgeConfigSpec.Builder();
@@ -19,8 +25,8 @@ public class Config
     private static final String CATEGORY_GENERAL = "general";
     public static ForgeConfigSpec.ConfigValue<String> BOT_TOKEN;
 
-    private static final String CATEGORY_CHANNEL = "channel";
-    public static ForgeConfigSpec.ConfigValue<List<List<ChannelConfig>>> CHANNELS;
+    private static final String CATEGORY_CHANNEL = "channels";
+    private static ChannelsConfig CHANNELS_TABLE;
 
     // Define configuration schema
     static {
@@ -28,17 +34,37 @@ public class Config
         COMMON_BUILDER.comment("General configuration").push(CATEGORY_GENERAL);
 
         BOT_TOKEN = COMMON_BUILDER.comment("Discord Bot Token")
-                                  .worldRestart()
                                   .define("bot.token", "");
 
         COMMON_BUILDER.pop();
 
         // CHANNELS
-        CHANNELS = COMMON_BUILDER.comment("Channel configurations")
-                                 .define(CATEGORY_CHANNEL, new ArrayList<>());
+        COMMON_BUILDER.comment("Channel configurations")
+                      .define(CATEGORY_CHANNEL, new ArrayList<>());
 
         // Publish config
         COMMON_CONFIG = COMMON_BUILDER.build();
+    }
+
+    /**
+     * Retrieve channel configuration object instances.
+     *
+     * @return list of ChannelConfig instances (from config tables)
+     */
+    public static List<ChannelsConfig.ChannelConfig> getChannels()
+    {
+        return CHANNELS_TABLE.channels;
+    }
+
+    /**
+     * Transform the given config file to extract channel configuration
+     * objects.
+     *
+     * @param configData configuration instance
+     */
+    public static void setChannelsConfig(CommentedConfig configData)
+    {
+        CHANNELS_TABLE = new ObjectConverter().toObject(configData, ChannelsConfig::new);
     }
 
     /**
@@ -58,15 +84,25 @@ public class Config
         configData.load();
         spec.setConfig(configData);
 
-        ChannelsConfig ccs = new ObjectConverter().toObject(configData, ChannelsConfig::new);
-        // TODO: Figure out how to put this `ccs.channels` list into the CHANNELS ConfigValue
-        ccs.channels.forEach(c -> MDC.LOGGER.debug(c.toString()));
+        // Transform channel tables
+        setChannelsConfig(configData);
     }
 
-    public static class ChannelsConfig
+    @SubscribeEvent
+    public static void onConfigReloading(ModConfig.ConfigReloading event)
     {
-        public List<ChannelConfig> channels;
+        final ModConfig cfg = event.getConfig();
 
-        public ChannelsConfig() {}
+        // Is this our configuration being reloaded?
+        if (!cfg.getModId().equals("mdc"))
+            return;
+
+        // Transform channel tables
+        setChannelsConfig(cfg.getConfigData());
+
+        // Did the bot token update?
+        String token = BOT_TOKEN.get();
+        if (!DiscordClient.getInstance().getJda().getToken().equals(token))
+            DiscordClient.getInstance().reconnect(token);
     }
 }
