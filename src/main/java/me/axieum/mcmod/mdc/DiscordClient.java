@@ -1,6 +1,5 @@
 package me.axieum.mcmod.mdc;
 
-import me.axieum.mcmod.mdc.event.EventServerStarted;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -45,7 +44,7 @@ public class DiscordClient extends ListenerAdapter
      */
     public boolean isReady()
     {
-        return api != null && !api.getStatus().isInit();
+        return api != null;
     }
 
     /**
@@ -68,9 +67,10 @@ public class DiscordClient extends ListenerAdapter
                     .setToken(token)
                     .setStatus(OnlineStatus.IDLE)
                     .addEventListeners(this)
-                    .build(); // asynchronous - need to listen for ready event
+                    .build();
 
             MDC.LOGGER.debug("Discord bot connecting...");
+            api.awaitReady(); // synchronous - easier to handle sending starting messages
             return true;
         } catch (Exception e) {
             MDC.LOGGER.error("Unable to connect to the Discord bot: {}", e.getMessage());
@@ -127,12 +127,5 @@ public class DiscordClient extends ListenerAdapter
 
         MDC.LOGGER.info("Logged into Discord as {}", api.getSelfUser().getAsTag());
         api.getPresence().setStatus(OnlineStatus.ONLINE);
-
-        // Cascade ready state to server started
-        // NB: Most of the time, the server started event is invoked before the
-        // Discord bot has established a connection - essentially losing the
-        // message. By invoking our actions once the bot is ready, it can be
-        // assumed that the server has started.
-        EventServerStarted.invoke();
     }
 }

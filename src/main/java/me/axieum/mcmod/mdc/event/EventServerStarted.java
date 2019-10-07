@@ -4,24 +4,23 @@ import me.axieum.mcmod.mdc.Config;
 import me.axieum.mcmod.mdc.DiscordClient;
 import me.axieum.mcmod.mdc.MDC;
 import me.axieum.mcmod.mdc.api.ChannelsConfig.ChannelConfig;
+import me.axieum.mcmod.mdc.util.MessageFormatter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.ReadyEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 
+@Mod.EventBusSubscriber
 public class EventServerStarted
 {
-    /**
-     * Handle server started event given the Discord bot is ready.
-     * NB: This event is triggered post-bot connecting.
-     *
-     * @see DiscordClient#onReady(ReadyEvent)
-     */
-    public static void invoke()
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onServerStarted(FMLServerStartedEvent event)
     {
+        if (!DiscordClient.getInstance().isReady()) return;
+
         final JDA discord = DiscordClient.getInstance().getApi();
-
-        if (discord == null) return;
-
         for (ChannelConfig entry : Config.getChannels()) {
             // Fetch the started message format
             String message = entry.messages.started;
@@ -31,7 +30,11 @@ public class EventServerStarted
             TextChannel channel = discord.getTextChannelById(entry.id);
             if (channel == null) continue;
 
-            // TODO: Handle message substitutions
+            // Handle message substitutions
+            message = new MessageFormatter(message)
+                    .withDateTime()
+                    .add("{DURATION}", String.valueOf((MDC.startedAt - MDC.startingAt) / 1000))
+                    .toString();
 
             // Send message
             try {

@@ -12,13 +12,12 @@
 	dimensions = [0]
 
 	[channels.messages]
-		join = "Player joined."
+		started = "Server started! (took {DURATION}s) :ok_hand:"
 
 [[channels]]
 	id = 262311018300915141
 	dimensions = [-1, 1]
 
 	[channels.messages]
-		stopped = "Server stopped."
-		started = "Server started!"
+		started = "Server started! (@ {TIME|hh:mma}) :ok_hand:"
 
