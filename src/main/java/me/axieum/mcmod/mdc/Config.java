@@ -101,8 +101,9 @@ public class Config
         setChannelsConfig(cfg.getConfigData());
 
         // Did the bot token update?
-        String token = BOT_TOKEN.get();
-        if (!DiscordClient.getInstance().getJda().getToken().equals(token))
-            DiscordClient.getInstance().reconnect(token);
+        final String token = BOT_TOKEN.get();
+        final DiscordClient dc = DiscordClient.getInstance();
+        if (dc.isReady() && !dc.getJda().getToken().equals(token))
+            dc.reconnect(token);
     }
 }
