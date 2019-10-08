@@ -16,11 +16,8 @@ public class MDC
 {
     public static final Logger LOGGER = LogManager.getLogger();
 
-    // Server timing in milliseconds - used in computing uptime and startup duration
-    public static long startingAt = 0, startedAt = 0;
-
-    // Server crashes can be detected if the stopping event was invoked
-    private static boolean isStopping;
+    // Timings in milliseconds - used in computing uptime and startup/shutdown duration
+    public static long startingAt = 0, startedAt = 0, stoppingAt = 0;
 
     public MDC()
     {
@@ -35,7 +32,7 @@ public class MDC
         startingAt = System.currentTimeMillis(); // accuracy with highest priority
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onServerStarting(FMLServerStartingEvent event)
     {
         // Prepare the Discord client and connect the bot
@@ -48,21 +45,15 @@ public class MDC
         startedAt = System.currentTimeMillis(); // accuracy with highest priority
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onServerStopping(FMLServerStoppingEvent event)
     {
-        isStopping = true;
-
-        // TODO: Broadcast server stopping messages
+        stoppingAt = System.currentTimeMillis(); // accuracy with highest priority
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onServerStopped(FMLServerStoppedEvent event)
     {
-        // TODO: Broadcast server stopped/crashed messages
-        if (!isStopping)
-            LOGGER.debug("Discord bot detected a server crash!");
-
         // Disconnect the Discord bot
         DiscordClient.getInstance().disconnect();
     }

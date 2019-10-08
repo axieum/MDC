@@ -29,7 +29,8 @@ public class ChannelsConfig
                     advancement,
                     started,
                     stopping,
-                    stopped;
+                    stopped,
+                    crashed;
         }
     }
 }

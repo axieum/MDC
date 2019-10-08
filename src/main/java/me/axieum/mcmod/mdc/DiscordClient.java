@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -65,7 +66,7 @@ public class DiscordClient extends ListenerAdapter
         try {
             api = new JDABuilder(AccountType.BOT)
                     .setToken(token)
-                    .setStatus(OnlineStatus.IDLE)
+                    .setStatus(OnlineStatus.ONLINE)
                     .addEventListeners(this)
                     .build();
 
@@ -116,6 +117,41 @@ public class DiscordClient extends ListenerAdapter
     }
 
     /**
+     * Send a message to a specific channel(s).
+     *
+     * @param message  message to be sent
+     * @param channels channel(s) to broadcast message to
+     */
+    public void sendMessage(String message, TextChannel... channels)
+    {
+        if (message.isEmpty() || !isReady()) return;
+        for (TextChannel channel : channels) {
+            if (channel == null) continue;
+            try {
+                channel.sendMessage(message).queue();
+            } catch (Exception e) {
+                MDC.LOGGER.warn("Unable to send message to channel with id {}: {}",
+                                channel.getId(),
+                                e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Send a message to a specific channel(s).
+     *
+     * @param message    message to be sent
+     * @param channelIds channel id(s) to broadcast message to
+     * @see DiscordClient#sendMessage(String, TextChannel...)
+     */
+    public void sendMessage(String message, long... channelIds)
+    {
+        if (message.isEmpty() || !isReady()) return;
+        for (long channelId : channelIds)
+            sendMessage(message, api.getTextChannelById(channelId));
+    }
+
+    /**
      * On ready event, mark the instance as ready.
      *
      * @param event JDA ready event
@@ -126,6 +162,5 @@ public class DiscordClient extends ListenerAdapter
         super.onReady(event);
 
         MDC.LOGGER.info("Logged into Discord as {}", api.getSelfUser().getAsTag());
-        api.getPresence().setStatus(OnlineStatus.ONLINE);
     }
 }

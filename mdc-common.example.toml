@@ -12,12 +12,15 @@
 	dimensions = [0]
 
 	[channels.messages]
-		started = "Server started! (took {DURATION}s) :ok_hand:"
+		started = "**Server started!** (took {ELAPSED|s.S's'}) :ok_hand:"
+		stopping = "**Server stopping...** ({DATE|d/MM/yyyy '@' hh:mma}) :raised_hand:"
+		stopped = "**Server stopped!** (after {UPTIME|d'd' H'hr' m'mins' s'secs'}) :no_entry:"
+		crashed = "**Server crash detected!** (after {UPTIME|d'd' H'hr' m'mins' s'secs'}) :warning:"
 
 [[channels]]
 	id = 262311018300915141
 	dimensions = [-1, 1]
 
 	[channels.messages]
-		started = "Server started! (@ {TIME|hh:mma}) :ok_hand:"
+		started = "**Server started!** (@ {DATE|h:mma}) :ok_hand:"
 

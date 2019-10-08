@@ -1,5 +1,8 @@
 package me.axieum.mcmod.mdc.util;
 
+import org.apache.commons.lang3.time.DurationFormatUtils;
+
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -28,33 +31,46 @@ public class MessageFormatter
     /**
      * Adds common datetime replacements.
      *
+     * @param token    token name
      * @param datetime datetime to use during replacements
      * @return this for chaining
      */
-    public MessageFormatter withDateTime(LocalDateTime datetime)
+    public MessageFormatter withDateTime(String token, LocalDateTime datetime)
     {
-        add(Pattern.compile("\\{(DATE|TIME)\\|(.+?)}"),
-            groups -> groups.size() < 3 ? datetime.toString()
-                                        : datetime.format(DateTimeFormatter.ofPattern(groups.get(2))));
-
+        add(token, groups -> datetime.format(DateTimeFormatter.ofPattern(groups.get(1))));
         return this;
     }
 
     /**
      * Adds common datetime replacements with current datetime.
      *
+     * @param token token name
      * @return this for chaining
      */
-    public MessageFormatter withDateTime()
+    public MessageFormatter withDateTime(String token)
     {
-        return withDateTime(LocalDateTime.now());
+        return withDateTime(token, LocalDateTime.now());
     }
 
     /**
-     * Add a new token literal replacement.
+     * Adds common duration replacements.
+     *
+     * @param token    token name
+     * @param duration duration to use during replacements
+     * @return this for chaining
+     */
+    public MessageFormatter withDuration(String token, Duration duration)
+    {
+        final long millis = Math.abs(duration.toMillis());
+        add(token, groups -> DurationFormatUtils.formatDuration(millis, groups.get(1)));
+        return this;
+    }
+
+    /**
+     * Add a new regex literal replacement.
      *
      * @param regex       regex pattern to find
-     * @param replacement string literal to replace token with
+     * @param replacement string literal to replace match with
      * @return this for chaining
      */
     public MessageFormatter add(Pattern regex, String replacement)
@@ -66,21 +82,22 @@ public class MessageFormatter
     /**
      * Add a new token literal replacement.
      *
-     * @param token       string literal to find
-     * @param replacement string literal to replace token with
+     * @param token       token name
+     * @param replacement string literal to replace match with
      * @return this for chaining
      * @see MessageFormatter#add(Pattern, String)
      */
     public MessageFormatter add(String token, String replacement)
     {
-        return add(Pattern.compile(Pattern.quote(token)), replacement);
+        return add(Pattern.compile("\\{" + Pattern.quote(token) + "}"), replacement);
     }
 
     /**
-     * Add a new token functional replacement.
+     * Add a new regex functional replacement. The replacer will be called with
+     * all matched groups, the first being the entire match.
      *
      * @param regex    regex pattern to find
-     * @param replacer token replacer function
+     * @param replacer match replacer function
      * @return this for chaining
      */
     public MessageFormatter add(Pattern regex, TokenReplacer replacer)
@@ -90,23 +107,25 @@ public class MessageFormatter
     }
 
     /**
-     * Add a new token functional replacement.
+     * Add a new token functional replacement. The replacer will be called with
+     * two groups: entire match and argument after the pipe (i.e.
+     * "{DATE|argument}").
      *
-     * @param token    string literal to find
-     * @param replacer token replacer function
+     * @param token    token name (i.e. "DATE" -> "{DATE|format}")
+     * @param replacer match replacer function
      * @return this for chaining
      * @see MessageFormatter#add(Pattern, TokenReplacer)
      */
     public MessageFormatter add(String token, TokenReplacer replacer)
     {
-        return add(Pattern.compile(Pattern.quote(token)), replacer);
+        return add(Pattern.compile("\\{" + Pattern.quote(token) + "\\|(.+?)}"), replacer);
     }
 
     @Override
     public String toString()
     {
         if (template == null || template.isEmpty()) return "";
-        if (literals.isEmpty() || functional.isEmpty()) return template;
+        if (literals.isEmpty() && functional.isEmpty()) return template;
 
         // Handle literal replacements
         String message = template;

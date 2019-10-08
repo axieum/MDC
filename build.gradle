@@ -67,11 +67,13 @@ minecraft {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${FORGE_VERSION}"
+    compile "org.apache.commons:commons-lang3:${LANG3_VERSION}"
     compile "net.dv8tion:JDA:${JDA_VERSION}"
 }
 
 repositories {
     jcenter()
+    mavenCentral()
 }
 
 jar {
