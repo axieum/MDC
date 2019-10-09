@@ -26,7 +26,7 @@ public class EventPlayerDeath
         final PlayerEntity player = (PlayerEntity) event.getEntityLiving();
 
         // Player name and cause of death
-        final String name = player.getName().getFormattedText();
+        final String playerName = player.getName().getFormattedText();
         final String cause = event.getSource()
                                   .getDeathMessage(event.getEntityLiving())
                                   .getUnformattedComponentText()
@@ -51,7 +51,7 @@ public class EventPlayerDeath
             // Handle message substitutions
             message = new MessageFormatter(message)
                     .withDateTime("DATE")
-                    .add("NAME", name)
+                    .add("PLAYER", playerName)
                     .add("CAUSE", cause)
                     .addOptional("HOLDING", holding)
                     .add("DIMENSION", dimension)

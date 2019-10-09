@@ -26,6 +26,7 @@ public class MessageFormatter
     public MessageFormatter(String template)
     {
         this.template = template;
+        add(Pattern.compile("\\n"), "\n");
     }
 
     /**
