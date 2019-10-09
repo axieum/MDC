@@ -19,6 +19,19 @@ public class ChannelsConfig
         public Messages messages;
 
         /**
+         * Retrieve the channel's messages instance or create a new instance
+         * if it is not set.
+         *
+         * @return existing messages or new instance
+         */
+        public Messages getMessages()
+        {
+            if (messages == null)
+                messages = new Messages();
+            return messages;
+        }
+
+        /**
          * Messages configuration schema.
          */
         public static class Messages

@@ -1,4 +1,4 @@
-package me.axieum.mcmod.mdc.event;
+package me.axieum.mcmod.mdc.event.minecraft;
 
 import me.axieum.mcmod.mdc.Config;
 import me.axieum.mcmod.mdc.DiscordClient;
@@ -20,8 +20,8 @@ public class EventServerStopped
         final DiscordClient discord = DiscordClient.getInstance();
 
         for (ChannelConfig channel : Config.getChannels()) {
-            // Fetch the started message format
-            String message = MDC.stoppingAt == 0 ? channel.messages.crashed : channel.messages.stopped;
+            // Fetch the message format
+            String message = MDC.stoppingAt == 0 ? channel.getMessages().crashed : channel.getMessages().stopped;
             if (message == null || message.isEmpty()) continue;
 
             // Handle message substitutions

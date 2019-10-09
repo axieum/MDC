@@ -37,8 +37,7 @@ public class MessageFormatter
      */
     public MessageFormatter withDateTime(String token, LocalDateTime datetime)
     {
-        add(token, groups -> datetime.format(DateTimeFormatter.ofPattern(groups.get(1))));
-        return this;
+        return add(token, groups -> datetime.format(DateTimeFormatter.ofPattern(groups.get(1))));
     }
 
     /**
@@ -62,8 +61,61 @@ public class MessageFormatter
     public MessageFormatter withDuration(String token, Duration duration)
     {
         final long millis = Math.abs(duration.toMillis());
-        add(token, groups -> DurationFormatUtils.formatDuration(millis, groups.get(1)));
-        return this;
+        return add(token, groups -> DurationFormatUtils.formatDuration(millis, groups.get(1)));
+    }
+
+    /**
+     * Adds common number replacements.
+     *
+     * @param token token name
+     * @param args  arguments to be formatted into pattern
+     * @return this for chaining
+     */
+    public MessageFormatter withFormatted(String token, Object... args)
+    {
+        return add(token, groups -> String.format(groups.get(1), args));
+    }
+
+    /**
+     * Adds an optional literal replacement.
+     *
+     * @param token       token name
+     * @param replacement string literal to replace match with
+     * @return this for chaining
+     */
+    public MessageFormatter addOptional(String token, String replacement)
+    {
+        return add(token, groups ->
+                replacement == null || replacement.isEmpty() ? groups.get(1)
+                                                             : replacement);
+    }
+
+    /**
+     * Adds an optional functional replacement.
+     *
+     * @param token       token name
+     * @param replacement string literal to replace match with
+     * @param fallback    fallback replacer if replacement missing
+     * @return this for chaining
+     */
+    public MessageFormatter addOptional(String token, String replacement, TokenReplacer fallback)
+    {
+        return replacement == null || replacement.isEmpty() ? add(token, fallback)
+                                                            : add(token, replacement);
+    }
+
+    /**
+     * Adds an optional functional replacement.
+     *
+     * @param token       regex pattern to find
+     * @param replacement string literal to replace match with
+     * @param fallback    fallback replacer if replacement missing
+     * @return this for chaining
+     */
+    public MessageFormatter addOptional(Pattern token, String replacement, TokenReplacer fallback)
+    {
+        return replacement == null || replacement.isEmpty() ? add(token, fallback)
+                                                            : add(token, replacement);
     }
 
     /**
@@ -118,7 +170,7 @@ public class MessageFormatter
      */
     public MessageFormatter add(String token, TokenReplacer replacer)
     {
-        return add(Pattern.compile("\\{" + Pattern.quote(token) + "\\|(.+?)}"), replacer);
+        return add(Pattern.compile("\\{" + Pattern.quote(token) + "\\|(.*?)}"), replacer);
     }
 
     @Override
