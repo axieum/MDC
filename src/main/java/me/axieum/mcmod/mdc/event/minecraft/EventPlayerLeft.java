@@ -6,49 +6,41 @@ import me.axieum.mcmod.mdc.api.ChannelsConfig.ChannelConfig;
 import me.axieum.mcmod.mdc.util.MessageFormatter;
 import me.axieum.mcmod.mdc.util.PlayerUtils;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import java.time.Duration;
+
 @Mod.EventBusSubscriber
-public class EventPlayerDeath
+public class EventPlayerLeft
 {
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onPlayerDeath(LivingDeathEvent event)
+    @SubscribeEvent
+    public static void onPlayerLeft(PlayerEvent.PlayerLoggedOutEvent event)
     {
-        // Is this a player dying?
-        if (!(event.getEntityLiving() instanceof PlayerEntity)) return;
+        final PlayerEntity player = event.getPlayer();
 
         // Fetch useful event information
-        final PlayerEntity player = (PlayerEntity) event.getEntityLiving();
-
-        // Player name and cause of death
-        final String playerName = player.getName().getFormattedText();
-        final String cause = event.getSource()
-                                  .getDeathMessage(event.getEntityLiving())
-                                  .getUnformattedComponentText()
-                                  .trim();
-        // Item player was holding
-        String holding = PlayerUtils.getHeldItemName(player);
+        final String name = player.getName().getFormattedText();
         // Position of player
         final double x = player.prevPosX, y = player.prevPosY, z = player.prevPosZ;
-        // Dimension name player was in
+        // Dimension name player logged into
         final String dimension = PlayerUtils.getDimensionName(player);
+        // Time spent logged in
+        final Duration elapsed = Duration.ofMillis(PlayerUtils.getSessionPlayTime(player));
 
         // Format and send messages
         final DiscordClient discord = DiscordClient.getInstance();
         for (ChannelConfig channel : Config.getChannels()) {
-            // Fetch the started message format
-            String message = channel.getMessages().death;
+            // Fetch the message format
+            String message = channel.getMessages().leave;
             if (message == null || message.isEmpty()) continue;
 
             // Handle message substitutions
             message = new MessageFormatter(message)
                     .withDateTime("DATE")
-                    .add("PLAYER", playerName)
-                    .add("CAUSE", cause)
-                    .addOptional("HOLDING", holding)
+                    .add("PLAYER", name)
+                    .withDuration("ELAPSED", elapsed)
                     .add("DIMENSION", dimension)
                     .add("X", String.valueOf((int) x))
                     .add("Y", String.valueOf((int) y))
@@ -58,5 +50,8 @@ public class EventPlayerDeath
             // Send message
             discord.sendMessage(message, channel.id);
         }
+
+        // We are done with the login time
+        PlayerUtils.loginTimes.remove(player);
     }
 }
