@@ -18,21 +18,20 @@ public class EventServerStarted
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onServerStarted(FMLServerStartedEvent event)
     {
-        final DiscordClient discord = DiscordClient.getInstance();
+        // Prepare formatter
+        final MessageFormatter formatter = new MessageFormatter()
+                .withDateTime("DATE")
+                .withDuration("ELAPSED", Duration.ofMillis(MDC.startedAt - MDC.startingAt));
 
+        // Format and send messages
+        final DiscordClient discord = DiscordClient.getInstance();
         for (ChannelConfig channel : Config.getChannels()) {
             // Fetch the message format
             String message = channel.getMessages().started;
             if (message == null || message.isEmpty()) continue;
 
-            // Handle message substitutions
-            message = new MessageFormatter(message)
-                    .withDateTime("DATE")
-                    .withDuration("ELAPSED", Duration.ofMillis(MDC.startedAt - MDC.startingAt))
-                    .toString();
-
             // Send message
-            discord.sendMessage(message, channel.id);
+            discord.sendMessage(formatter.format(message), channel.id);
         }
     }
 }

@@ -17,22 +17,21 @@ public class EventServerStopping
     @SubscribeEvent
     public static void onServerStopping(FMLServerStoppingEvent event)
     {
-        final DiscordClient discord = DiscordClient.getInstance();
+        // Prepare formatter
+        final MessageFormatter formatter = new MessageFormatter()
+                .withDateTime("DATE")
+                .withDuration("UPTIME",
+                              Duration.ofMillis(System.currentTimeMillis() - MDC.startedAt));
 
+        // Format and send messages
+        final DiscordClient discord = DiscordClient.getInstance();
         for (ChannelConfig channel : Config.getChannels()) {
             // Fetch the message format
             String message = channel.getMessages().stopping;
             if (message == null || message.isEmpty()) continue;
 
-            // Handle message substitutions
-            message = new MessageFormatter(message)
-                    .withDateTime("DATE")
-                    .withDuration("UPTIME",
-                                  Duration.ofMillis(System.currentTimeMillis() - MDC.startedAt))
-                    .toString();
-
             // Send message
-            discord.sendMessage(message, channel.id);
+            discord.sendMessage(formatter.format(message), channel.id);
         }
     }
 }

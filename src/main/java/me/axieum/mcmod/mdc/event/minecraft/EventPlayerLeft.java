@@ -18,16 +18,23 @@ public class EventPlayerLeft
     @SubscribeEvent
     public static void onPlayerLeft(PlayerEvent.PlayerLoggedOutEvent event)
     {
+        // Fetch useful event information
         final PlayerEntity player = event.getPlayer();
 
-        // Fetch useful event information
         final String name = player.getName().getFormattedText();
-        // Position of player
         final double x = player.prevPosX, y = player.prevPosY, z = player.prevPosZ;
-        // Dimension name player logged into
         final String dimension = PlayerUtils.getDimensionName(player);
-        // Time spent logged in
         final Duration elapsed = Duration.ofMillis(PlayerUtils.getSessionPlayTime(player));
+
+        // Prepare formatter
+        final MessageFormatter formatter = new MessageFormatter()
+                .withDateTime("DATE")
+                .add("PLAYER", name)
+                .withDuration("ELAPSED", elapsed)
+                .add("DIMENSION", dimension)
+                .add("X", String.valueOf((int) x))
+                .add("Y", String.valueOf((int) y))
+                .add("Z", String.valueOf((int) z));
 
         // Format and send messages
         final DiscordClient discord = DiscordClient.getInstance();
@@ -36,19 +43,8 @@ public class EventPlayerLeft
             String message = channel.getMessages().leave;
             if (message == null || message.isEmpty()) continue;
 
-            // Handle message substitutions
-            message = new MessageFormatter(message)
-                    .withDateTime("DATE")
-                    .add("PLAYER", name)
-                    .withDuration("ELAPSED", elapsed)
-                    .add("DIMENSION", dimension)
-                    .add("X", String.valueOf((int) x))
-                    .add("Y", String.valueOf((int) y))
-                    .add("Z", String.valueOf((int) z))
-                    .toString();
-
             // Send message
-            discord.sendMessage(message, channel.id);
+            discord.sendMessage(formatter.format(message), channel.id);
         }
 
         // We are done with the login time

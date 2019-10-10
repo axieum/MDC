@@ -14,19 +14,13 @@ import java.util.regex.Pattern;
 
 public class MessageFormatter
 {
-    private final String template;
     private HashMap<Pattern, String> literals = new HashMap<>();
     private HashMap<Pattern, TokenReplacer> functional = new HashMap<>();
 
     /**
      * Constructs a new Message Formatter instance.
-     *
-     * @param template string to replace tokens
      */
-    public MessageFormatter(String template)
-    {
-        this.template = template;
-    }
+    public MessageFormatter() {}
 
     /**
      * Adds common datetime replacements.
@@ -173,11 +167,15 @@ public class MessageFormatter
         return add(Pattern.compile("\\{" + Pattern.quote(token) + "\\|(.*?)}"), replacer);
     }
 
-    @Override
-    public String toString()
+    /**
+     * Apply this formatter to a given template.
+     *
+     * @param template string template to format
+     * @return template formatted with rules
+     */
+    public String format(final String template)
     {
         if (template == null || template.isEmpty()) return "";
-        if (literals.isEmpty() && functional.isEmpty()) return template;
 
         // Handle literal replacements
         String message = template;

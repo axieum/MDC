@@ -23,18 +23,25 @@ public class EventPlayerDeath
         // Fetch useful event information
         final PlayerEntity player = (PlayerEntity) event.getEntityLiving();
 
-        // Player name and cause of death
-        final String playerName = player.getName().getFormattedText();
+        final String name = player.getName().getFormattedText();
+        final String holding = PlayerUtils.getHeldItemName(player);
+        final double x = player.prevPosX, y = player.prevPosY, z = player.prevPosZ;
+        final String dimension = PlayerUtils.getDimensionName(player);
         final String cause = event.getSource()
                                   .getDeathMessage(event.getEntityLiving())
                                   .getUnformattedComponentText()
                                   .trim();
-        // Item player was holding
-        String holding = PlayerUtils.getHeldItemName(player);
-        // Position of player
-        final double x = player.prevPosX, y = player.prevPosY, z = player.prevPosZ;
-        // Dimension name player was in
-        final String dimension = PlayerUtils.getDimensionName(player);
+
+        // Prepare formatter
+        final MessageFormatter formatter = new MessageFormatter()
+                .withDateTime("DATE")
+                .add("PLAYER", name)
+                .add("CAUSE", cause)
+                .addOptional("HOLDING", holding)
+                .add("DIMENSION", dimension)
+                .add("X", String.valueOf((int) x))
+                .add("Y", String.valueOf((int) y))
+                .add("Z", String.valueOf((int) z));
 
         // Format and send messages
         final DiscordClient discord = DiscordClient.getInstance();
@@ -43,20 +50,8 @@ public class EventPlayerDeath
             String message = channel.getMessages().death;
             if (message == null || message.isEmpty()) continue;
 
-            // Handle message substitutions
-            message = new MessageFormatter(message)
-                    .withDateTime("DATE")
-                    .add("PLAYER", playerName)
-                    .add("CAUSE", cause)
-                    .addOptional("HOLDING", holding)
-                    .add("DIMENSION", dimension)
-                    .add("X", String.valueOf((int) x))
-                    .add("Y", String.valueOf((int) y))
-                    .add("Z", String.valueOf((int) z))
-                    .toString();
-
             // Send message
-            discord.sendMessage(message, channel.id);
+            discord.sendMessage(formatter.format(message), channel.id);
         }
     }
 }

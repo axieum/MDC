@@ -26,6 +26,14 @@ public class EventPlayerAdvancement
         final String title = info.getTitle().getUnformattedComponentText();
         final String description = info.getDescription().getUnformattedComponentText();
 
+        // Prepare formatter
+        final MessageFormatter formatter = new MessageFormatter()
+                .withDateTime("DATE")
+                .add("PLAYER", name)
+                .add("TYPE", type)
+                .add("TITLE", title)
+                .add("DESCRIPTION", description);
+
         // Format and send messages
         final DiscordClient discord = DiscordClient.getInstance();
         for (ChannelConfig channel : Config.getChannels()) {
@@ -33,17 +41,8 @@ public class EventPlayerAdvancement
             String message = channel.getMessages().advancement;
             if (message == null || message.isEmpty()) continue;
 
-            // Handle message substitutions
-            message = new MessageFormatter(message)
-                    .withDateTime("DATE")
-                    .add("PLAYER", name)
-                    .add("TYPE", type)
-                    .add("TITLE", title)
-                    .add("DESCRIPTION", description)
-                    .toString();
-
             // Send message
-            discord.sendMessage(message, channel.id);
+            discord.sendMessage(formatter.format(message), channel.id);
         }
     }
 }
