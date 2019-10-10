@@ -26,7 +26,6 @@ public class MessageFormatter
     public MessageFormatter(String template)
     {
         this.template = template;
-        add(Pattern.compile("\\n"), "\n");
     }
 
     /**
@@ -202,6 +201,9 @@ public class MessageFormatter
                 message = sb.toString();
             }
         }
+
+        // Post replacements
+        message = message.replace("\\n", "\n");
 
         return message;
     }
