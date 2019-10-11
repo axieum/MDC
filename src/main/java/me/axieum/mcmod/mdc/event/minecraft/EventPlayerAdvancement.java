@@ -38,7 +38,7 @@ public class EventPlayerAdvancement
         final DiscordClient discord = DiscordClient.getInstance();
         for (ChannelConfig channel : Config.getChannels()) {
             // Fetch the started message format
-            String message = channel.getMessages().advancement;
+            String message = channel.getMCMessages().advancement;
             if (message == null || message.isEmpty()) continue;
 
             // Send message

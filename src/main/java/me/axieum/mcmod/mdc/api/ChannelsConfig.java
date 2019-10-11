@@ -16,34 +16,57 @@ public class ChannelsConfig
     {
         public long id;
         public List<Integer> dimensions;
-        public Messages messages;
+        public MinecraftMessages minecraft;
+        public DiscordMessages discord;
 
         /**
-         * Retrieve the channel's messages instance or create a new instance
+         * Retrieve the channel's Minecraft Messages instance or create a new instance
          * if it is not set.
          *
          * @return existing messages or new instance
          */
-        public Messages getMessages()
+        public MinecraftMessages getMCMessages()
         {
-            if (messages == null)
-                messages = new Messages();
-            return messages;
+            if (minecraft == null)
+                minecraft = new MinecraftMessages();
+            return minecraft;
         }
 
         /**
-         * Messages configuration schema.
+         * Retrieve the channel's Discord Messages instance or create a new instance
+         * if it is not set.
+         *
+         * @return existing messages or new instance
          */
-        public static class Messages
+        public DiscordMessages getDiscordMessages()
+        {
+            if (discord == null)
+                discord = new DiscordMessages();
+            return discord;
+        }
+
+        /**
+         * Minecraft Messages configuration schema.
+         */
+        public static class MinecraftMessages
         {
             public String join,
                     leave,
                     death,
                     advancement,
+                    chat,
                     started,
                     stopping,
                     stopped,
                     crashed;
+        }
+
+        /**
+         * Discord Messages configuration schema.
+         */
+        public static class DiscordMessages
+        {
+            public String chat, react, unreact, edit;
         }
     }
 }

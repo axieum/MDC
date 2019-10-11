@@ -40,7 +40,7 @@ public class EventPlayerLeft
         final DiscordClient discord = DiscordClient.getInstance();
         for (ChannelConfig channel : Config.getChannels()) {
             // Fetch the message format
-            String message = channel.getMessages().leave;
+            String message = channel.getMCMessages().leave;
             if (message == null || message.isEmpty()) continue;
 
             // Send message

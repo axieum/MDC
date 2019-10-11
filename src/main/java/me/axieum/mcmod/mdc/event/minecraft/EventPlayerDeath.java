@@ -47,7 +47,7 @@ public class EventPlayerDeath
         final DiscordClient discord = DiscordClient.getInstance();
         for (ChannelConfig channel : Config.getChannels()) {
             // Fetch the started message format
-            String message = channel.getMessages().death;
+            String message = channel.getMCMessages().death;
             if (message == null || message.isEmpty()) continue;
 
             // Send message

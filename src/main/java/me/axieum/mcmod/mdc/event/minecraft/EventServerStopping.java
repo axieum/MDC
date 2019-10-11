@@ -27,7 +27,7 @@ public class EventServerStopping
         final DiscordClient discord = DiscordClient.getInstance();
         for (ChannelConfig channel : Config.getChannels()) {
             // Fetch the message format
-            String message = channel.getMessages().stopping;
+            String message = channel.getMCMessages().stopping;
             if (message == null || message.isEmpty()) continue;
 
             // Send message
