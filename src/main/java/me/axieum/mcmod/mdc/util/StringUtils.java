@@ -1,6 +1,7 @@
 package me.axieum.mcmod.mdc.util;
 
 import me.axieum.mcmod.mdc.DiscordClient;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
 import java.util.List;
@@ -48,11 +49,20 @@ public class StringUtils
                 .add(Pattern.compile("(?<=[\u00A7]o)(.+?)(?=\\s?[\u00A7]r|$)"), "_$1_")
                 .add(Pattern.compile("(?<=[\u00A7]l)(.+?)(?=\\s?[\u00A7]r|$)"), "**$1**")
                 // Handle @mentions
-                .add(Pattern.compile("@(\\w+)"), groups -> {
+                .add(Pattern.compile("@([A-Za-z0-9\\-_()\\[\\]]+)"), groups -> {
                     // Attempt to match mention to a Discord user
                     List<User> users = DiscordClient.getInstance().getApi().getUsersByName(groups.get(1), true);
                     if (users.size() < 1) return groups.get(0); // no users, don't change anything
                     return users.get(0).getAsMention(); // try to mention first user
+                })
+                // Handle #channels
+                .add(Pattern.compile("#([A-Za-z0-9\\-_]+)"), groups -> {
+                    // Attempt to match a channel to a Discord channel
+                    List<TextChannel> channels = DiscordClient.getInstance()
+                                                              .getApi()
+                                                              .getTextChannelsByName(groups.get(1), true);
+                    if (channels.size() < 1) return groups.get(0); // no channels, don't change anything
+                    return channels.get(0).getAsMention(); // try to mention first channel
                 })
                 // Strip left over formatting codes and return
                 .add(Pattern.compile("[\u00A7][0-9a-fk-or]"), "")
