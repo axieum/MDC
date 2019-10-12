@@ -1,5 +1,6 @@
 package me.axieum.mcmod.mdc;
 
+import me.axieum.mcmod.mdc.command.discord.CommandPing;
 import me.axieum.mcmod.mdc.event.discord.EventChat;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -25,6 +26,12 @@ public class MDC
         // Register configuration
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.COMMON_CONFIG);
         Config.loadConfig(Config.COMMON_CONFIG, FMLPaths.CONFIGDIR.get().resolve("mdc-common.toml"));
+
+        // Register Discord event listeners
+        DiscordClient.getInstance().addEventListeners(new EventChat());
+
+        // Register Discord commands
+        DiscordClient.getInstance().addCommands(new CommandPing());
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -38,7 +45,6 @@ public class MDC
     {
         // Prepare the Discord client and connect the bot
         DiscordClient.getInstance().connect(Config.BOT_TOKEN.get());
-        DiscordClient.getInstance().addEventListeners(new EventChat());
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

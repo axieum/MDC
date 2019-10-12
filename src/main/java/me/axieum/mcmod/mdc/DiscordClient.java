@@ -1,5 +1,6 @@
 package me.axieum.mcmod.mdc;
 
+import me.axieum.mcmod.mdc.api.DiscordCommand;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -11,12 +12,14 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class DiscordClient extends ListenerAdapter
 {
     private static DiscordClient instance;
     private static List<Object> listeners = new ArrayList<>();
+    private static List<DiscordCommand> commands = new ArrayList<>();
     private JDA api;
 
     /**
@@ -132,6 +135,36 @@ public class DiscordClient extends ListenerAdapter
         DiscordClient.listeners.addAll(Arrays.asList(listeners));
         if (api != null)
             api.addEventListener(listeners);
+    }
+
+    /**
+     * Add Discord command handlers.
+     *
+     * @param commands command instances
+     */
+    public void addCommands(DiscordCommand... commands)
+    {
+        DiscordClient.commands.addAll(Arrays.asList(commands));
+    }
+
+    /**
+     * Remove Discord command handlers.
+     *
+     * @param commands command instances
+     */
+    public void removeCommands(DiscordCommand... commands)
+    {
+        DiscordClient.commands.removeAll(Arrays.asList(commands));
+    }
+
+    /**
+     * Retrieve registered commands.
+     *
+     * @return immutable list of commands
+     */
+    public List<DiscordCommand> getCommands()
+    {
+        return Collections.unmodifiableList(commands);
     }
 
     /**

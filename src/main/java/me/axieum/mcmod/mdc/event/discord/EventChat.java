@@ -21,21 +21,26 @@ public class EventChat implements EventListener
     public void onEvent(@Nonnull GenericEvent e)
     {
         if (!(e instanceof MessageReceivedEvent)) return;
-
         final MessageReceivedEvent event = (MessageReceivedEvent) e;
-        if (event.getAuthor().isBot()) return; // ignore bots
-        if (event.getAuthor().getId().equals(
-                DiscordClient.getInstance().getApi().getSelfUser().getId()))
-            return; // ignore self
 
+        // Should we handle this chat event?
+        // NB: bots or ourselves
+        if (event.getAuthor().isBot() ||
+            event.getAuthor().getId().equals(DiscordClient.getInstance().getApi().getSelfUser().getId()))
+            return;
+
+        if (!EventCommand.onCommandMessage(event))
+            onChatMessage(event);
+    }
+
+    public static void onChatMessage(@Nonnull MessageReceivedEvent event)
+    {
         // Fetch useful information
         final Member member = event.getMember();
 
         final String author = member != null ? member.getEffectiveName()
                                              : event.getAuthor().getName();
         final String body = StringUtils.discordToMc(event.getMessage().getContentDisplay().trim());
-
-        // TODO: Handle commands
 
         // Prepare formatter
         final MessageFormatter formatter = new MessageFormatter()
