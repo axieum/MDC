@@ -6,7 +6,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -14,8 +14,8 @@ import java.util.regex.Pattern;
 
 public class MessageFormatter
 {
-    private HashMap<Pattern, String> literals = new HashMap<>();
-    private HashMap<Pattern, TokenReplacer> functional = new HashMap<>();
+    private LinkedHashMap<Pattern, String> literals = new LinkedHashMap<>();
+    private LinkedHashMap<Pattern, TokenReplacer> functional = new LinkedHashMap<>();
 
     /**
      * Constructs a new Message Formatter instance.
@@ -208,6 +208,12 @@ public class MessageFormatter
 
     public interface TokenReplacer
     {
+        /**
+         * Handle replacement of a regex match.
+         *
+         * @param groups list of captured regex groups (first is entire regex match)
+         * @return replacement for entire regex match
+         */
         String replace(List<String> groups);
     }
 }
