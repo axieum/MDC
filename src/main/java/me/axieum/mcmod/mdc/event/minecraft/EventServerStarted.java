@@ -27,7 +27,7 @@ public class EventServerStarted
         final DiscordClient discord = DiscordClient.getInstance();
         for (ChannelConfig channel : Config.getChannels()) {
             // Fetch the message format
-            String message = channel.getMessages().started;
+            String message = channel.getMCMessages().started;
             if (message == null || message.isEmpty()) continue;
 
             // Send message

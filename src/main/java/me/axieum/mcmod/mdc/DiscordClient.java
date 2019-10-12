@@ -117,6 +117,17 @@ public class DiscordClient extends ListenerAdapter
     }
 
     /**
+     * Add event listeners to the JDA api.
+     *
+     * @param listeners listener instances
+     * @see JDA#addEventListener(Object...)
+     */
+    public void addEventListeners(Object... listeners)
+    {
+        api.addEventListener(listeners);
+    }
+
+    /**
      * Send a message to a specific channel(s).
      *
      * @param message  message to be sent

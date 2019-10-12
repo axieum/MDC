@@ -27,7 +27,7 @@ public class EventServerStopped
         final DiscordClient discord = DiscordClient.getInstance();
         for (ChannelConfig channel : Config.getChannels()) {
             // Fetch the message format
-            String message = MDC.stoppingAt == 0 ? channel.getMessages().crashed : channel.getMessages().stopped;
+            String message = MDC.stoppingAt == 0 ? channel.getMCMessages().crashed : channel.getMCMessages().stopped;
             if (message == null || message.isEmpty()) continue;
 
             // Send message
