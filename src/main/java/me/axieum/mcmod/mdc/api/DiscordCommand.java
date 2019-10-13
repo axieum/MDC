@@ -15,13 +15,6 @@ public interface DiscordCommand
     List<String> getNames();
 
     /**
-     * Check whether this command should provide a response.
-     *
-     * @return true if a Discord message should be returned
-     */
-    boolean isQuiet();
-
-    /**
      * Authorise the given executor to execute this command.
      *
      * @param executor Discord member whom is executing

@@ -16,12 +16,6 @@ public class CommandPing implements DiscordCommand
     }
 
     @Override
-    public boolean isQuiet()
-    {
-        return false;
-    }
-
-    @Override
     public boolean isAuthorised(Member executor, TextChannel channel)
     {
         return true;

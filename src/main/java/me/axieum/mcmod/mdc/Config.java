@@ -25,7 +25,7 @@ public class Config
     public static ForgeConfigSpec COMMON_CONFIG;
 
     private static final String CATEGORY_GENERAL = "general";
-    public static ForgeConfigSpec.ConfigValue<String> BOT_TOKEN;
+    public static ForgeConfigSpec.ConfigValue<String> BOT_TOKEN, COMMAND_PREFIX, COMMAND_UNAUTHORISED;
 
     private static final String CATEGORY_COMMANDS = "commands";
     private static CommandsConfig COMMANDS_TABLE;
@@ -38,8 +38,16 @@ public class Config
         // GENERAL
         COMMON_BUILDER.comment("General configuration").push(CATEGORY_GENERAL);
 
-        BOT_TOKEN = COMMON_BUILDER.comment("Discord Bot Token")
+        BOT_TOKEN = COMMON_BUILDER.comment("Discord bot token")
                                   .define("bot.token", "");
+
+        COMMAND_PREFIX = COMMON_BUILDER.comment("Discord command prefix")
+                                       .define("commands.prefix", "!");
+
+        COMMAND_UNAUTHORISED = COMMON_BUILDER.comment("Discord command unauthorised message")
+                                             .define("commands.unauthorised",
+                                                     "{MENTION}, you were unauthorised to perform this action :no_good:");
+
         COMMON_BUILDER.pop();
 
         // COMMANDS

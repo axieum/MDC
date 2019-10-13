@@ -29,10 +29,17 @@ public class EventChat implements EventListener
             event.getAuthor().getId().equals(DiscordClient.getInstance().getApi().getSelfUser().getId()))
             return;
 
+        // First, we'll treat this as a command message
         if (!EventCommand.onCommandMessage(event))
+            // A command wasn't executed, treat as a chat message
             onChatMessage(event);
     }
 
+    /**
+     * Handle a Discord chat message event.
+     *
+     * @param event Discord message received event
+     */
     public static void onChatMessage(@Nonnull MessageReceivedEvent event)
     {
         // Fetch useful information

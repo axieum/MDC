@@ -136,22 +136,25 @@ public class CommandsConfig
             if (getChannels().isEmpty() && getPermissions().isEmpty()) return true;
 
             // Check channels
-            if (!getChannels().contains(channel.getIdLong())) return false;
+            if (!getChannels().isEmpty() &&
+                !getChannels().contains(channel.getIdLong())) return false;
 
             // Check permissions
-            final List<Role> guildRoles = channel.getGuild().getRoles();
-            final List<Role> memberRoles = member.getRoles();
+            final List<Role> roles = member.getRoles();
             return getPermissions().stream().anyMatch(permission -> {
                 // Check users
-                if (permission.startsWith("user:"))
-                    if (permission.substring(5).equals(member.getId()) ||
-                        permission.substring(5).equals(member.getUser().getAsTag()))
+                if (permission.startsWith("user:")) {
+                    String user = permission.substring(5);
+                    if (user.equals(member.getId()) || user.equals(member.getUser().getAsTag()))
                         return true;
+                }
 
                 // Check roles
-                if (permission.startsWith("role:"))
-                    if (guildRoles.stream().anyMatch(memberRoles::contains))
+                if (permission.startsWith("role:")) {
+                    String role = permission.substring(5);
+                    if (roles.stream().anyMatch(r -> r.getId().equals(role)))
                         return true;
+                }
 
                 // Fallback to matching "user#discriminator"
                 return permission.equals(member.getUser().getAsTag());

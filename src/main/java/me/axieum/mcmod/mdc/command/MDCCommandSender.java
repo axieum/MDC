@@ -15,13 +15,15 @@ import java.util.UUID;
 
 public class MDCCommandSender extends FakePlayer
 {
+    private static final UUID MDC_UUID = UUID.fromString("3665cd17-b83f-43b3-848c-e4d305271340");
+
     private final Member member;
     private final TextChannel channel;
 
     public MDCCommandSender(Member member, TextChannel channel)
     {
         this(ServerLifecycleHooks.getCurrentServer().getWorld(DimensionType.OVERWORLD),
-             new GameProfile(UUID.randomUUID(), "@" + member.getEffectiveName()),
+             new GameProfile(MDC_UUID, "@" + member.getEffectiveName()),
              member,
              channel);
     }
