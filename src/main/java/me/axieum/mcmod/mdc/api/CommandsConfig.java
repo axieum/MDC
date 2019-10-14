@@ -123,6 +123,20 @@ public class CommandsConfig
         }
 
         /**
+         * Check whether a user and channel combination should be ignored.
+         *
+         * @param member  member whom is executing
+         * @param channel text channel command was issued from
+         * @return true if the command should execute
+         */
+        public boolean shouldIgnore(Member member, TextChannel channel)
+        {
+            // Check channels
+            if (getChannels().isEmpty()) return false;
+            return !getChannels().contains(channel.getIdLong());
+        }
+
+        /**
          * Check whether a user in a channel is authorised to execute this
          * command.
          *
@@ -133,11 +147,7 @@ public class CommandsConfig
         public boolean isAuthorised(Member member, TextChannel channel)
         {
             if (member == null || channel == null) return false;
-            if (getChannels().isEmpty() && getPermissions().isEmpty()) return true;
-
-            // Check channels
-            if (!getChannels().isEmpty() &&
-                !getChannels().contains(channel.getIdLong())) return false;
+            if (getPermissions().isEmpty()) return true;
 
             // Check permissions
             final List<Role> roles = member.getRoles();

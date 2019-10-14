@@ -66,6 +66,7 @@ public class EventCommand
         // Attempt to match this command with a Minecraft proxy configuration entry(s)
         for (CommandsConfig.CommandConfig command : Config.getCommands()) {
             if (!command.isEnabled()) continue;
+            if (command.shouldIgnore(member, channel)) continue;
             if (command.getEffectiveNames().stream().noneMatch(name -> name.equalsIgnoreCase(cmd)))
                 continue;
 
