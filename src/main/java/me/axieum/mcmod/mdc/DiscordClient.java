@@ -1,5 +1,6 @@
 package me.axieum.mcmod.mdc;
 
+import me.axieum.mcmod.mdc.api.DiscordCommand;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -9,10 +10,16 @@ import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class DiscordClient extends ListenerAdapter
 {
     private static DiscordClient instance;
+    private static List<Object> listeners = new ArrayList<>();
+    private static List<DiscordCommand> commands = new ArrayList<>();
     private JDA api;
 
     /**
@@ -68,6 +75,7 @@ public class DiscordClient extends ListenerAdapter
                     .setToken(token)
                     .setStatus(OnlineStatus.ONLINE)
                     .addEventListeners(this)
+                    .addEventListeners(listeners.toArray())
                     .build();
 
             MDC.LOGGER.debug("Discord bot connecting...");
@@ -124,7 +132,39 @@ public class DiscordClient extends ListenerAdapter
      */
     public void addEventListeners(Object... listeners)
     {
-        api.addEventListener(listeners);
+        DiscordClient.listeners.addAll(Arrays.asList(listeners));
+        if (api != null)
+            api.addEventListener(listeners);
+    }
+
+    /**
+     * Add Discord command handlers.
+     *
+     * @param commands command instances
+     */
+    public void addCommands(DiscordCommand... commands)
+    {
+        DiscordClient.commands.addAll(Arrays.asList(commands));
+    }
+
+    /**
+     * Remove Discord command handlers.
+     *
+     * @param commands command instances
+     */
+    public void removeCommands(DiscordCommand... commands)
+    {
+        DiscordClient.commands.removeAll(Arrays.asList(commands));
+    }
+
+    /**
+     * Retrieve registered commands.
+     *
+     * @return immutable list of commands
+     */
+    public List<DiscordCommand> getCommands()
+    {
+        return Collections.unmodifiableList(commands);
     }
 
     /**
@@ -135,7 +175,7 @@ public class DiscordClient extends ListenerAdapter
      */
     public void sendMessage(String message, TextChannel... channels)
     {
-        if (message.isEmpty() || !isReady()) return;
+        if (!isReady() || message.isEmpty()) return;
         for (TextChannel channel : channels) {
             if (channel == null) continue;
             try {
@@ -157,7 +197,7 @@ public class DiscordClient extends ListenerAdapter
      */
     public void sendMessage(String message, long... channelIds)
     {
-        if (message.isEmpty() || !isReady()) return;
+        if (!isReady() || message.isEmpty()) return;
         for (long channelId : channelIds)
             sendMessage(message, api.getTextChannelById(channelId));
     }
@@ -171,6 +211,12 @@ public class DiscordClient extends ListenerAdapter
     public void onReady(@Nonnull ReadyEvent event)
     {
         super.onReady(event);
+
+        // Register listeners
+        final List<Object> registered = api.getRegisteredListeners();
+        for (Object listener : listeners)
+            if (!registered.contains(listener))
+                api.addEventListener(listener);
 
         MDC.LOGGER.info("Logged into Discord as {}", api.getSelfUser().getAsTag());
     }

@@ -5,6 +5,7 @@ import com.electronwill.nightconfig.core.conversion.ObjectConverter;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
 import me.axieum.mcmod.mdc.api.ChannelsConfig;
+import me.axieum.mcmod.mdc.api.CommandsConfig;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -13,6 +14,7 @@ import net.minecraftforge.fml.config.ModConfig;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Mod.EventBusSubscriber(bus = Bus.MOD)
@@ -23,7 +25,10 @@ public class Config
     public static ForgeConfigSpec COMMON_CONFIG;
 
     private static final String CATEGORY_GENERAL = "general";
-    public static ForgeConfigSpec.ConfigValue<String> BOT_TOKEN;
+    public static ForgeConfigSpec.ConfigValue<String> BOT_TOKEN, COMMAND_PREFIX, COMMAND_UNAUTHORISED;
+
+    private static final String CATEGORY_COMMANDS = "commands";
+    private static CommandsConfig COMMANDS_TABLE;
 
     private static final String CATEGORY_CHANNEL = "channels";
     private static ChannelsConfig CHANNELS_TABLE;
@@ -33,13 +38,24 @@ public class Config
         // GENERAL
         COMMON_BUILDER.comment("General configuration").push(CATEGORY_GENERAL);
 
-        BOT_TOKEN = COMMON_BUILDER.comment("Discord Bot Token")
+        BOT_TOKEN = COMMON_BUILDER.comment("Discord bot token")
                                   .define("bot.token", "");
+
+        COMMAND_PREFIX = COMMON_BUILDER.comment("Discord command prefix")
+                                       .define("commands.prefix", "!");
+
+        COMMAND_UNAUTHORISED = COMMON_BUILDER.comment("Discord command unauthorised message")
+                                             .define("commands.unauthorised",
+                                                     "{MENTION}, you were unauthorised to perform this action :no_good:");
 
         COMMON_BUILDER.pop();
 
+        // COMMANDS
+        COMMON_BUILDER.comment("Command configurations") // commands table
+                      .define(CATEGORY_COMMANDS, new ArrayList<>());
+
         // CHANNELS
-        COMMON_BUILDER.comment("Channel configurations")
+        COMMON_BUILDER.comment("Channel configurations") // channels table
                       .define(CATEGORY_CHANNEL, new ArrayList<>());
 
         // Publish config
@@ -53,18 +69,30 @@ public class Config
      */
     public static List<ChannelsConfig.ChannelConfig> getChannels()
     {
-        return CHANNELS_TABLE.channels;
+        return CHANNELS_TABLE.channels != null ? CHANNELS_TABLE.channels
+                                               : Collections.emptyList();
     }
 
     /**
-     * Transform the given config file to extract channel configuration
-     * objects.
+     * Retrieve command configuration object instances.
+     *
+     * @return list of CommandConfig instances (from config tables)
+     */
+    public static List<CommandsConfig.CommandConfig> getCommands()
+    {
+        return COMMANDS_TABLE.commands != null ? COMMANDS_TABLE.commands
+                                               : Collections.emptyList();
+    }
+
+    /**
+     * Transform configuration data into respective objects.
      *
      * @param configData configuration instance
      */
-    public static void setChannelsConfig(CommentedConfig configData)
+    public static void transform(CommentedConfig configData)
     {
         CHANNELS_TABLE = new ObjectConverter().toObject(configData, ChannelsConfig::new);
+        COMMANDS_TABLE = new ObjectConverter().toObject(configData, CommandsConfig::new);
     }
 
     /**
@@ -84,8 +112,8 @@ public class Config
         configData.load();
         spec.setConfig(configData);
 
-        // Transform channel tables
-        setChannelsConfig(configData);
+        // Handle transformations
+        transform(configData);
     }
 
     @SubscribeEvent
@@ -97,8 +125,8 @@ public class Config
         if (!cfg.getModId().equals("mdc"))
             return;
 
-        // Transform channel tables
-        setChannelsConfig(cfg.getConfigData());
+        // Handle transformations
+        transform(cfg.getConfigData());
 
         // Did the bot token update?
         final String token = BOT_TOKEN.get();
