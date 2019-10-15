@@ -1,5 +1,7 @@
 package me.axieum.mcmod.mdc.util;
 
+import com.vdurmont.emoji.EmojiParser;
+import me.axieum.mcmod.mdc.Config;
 import me.axieum.mcmod.mdc.DiscordClient;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -77,7 +79,8 @@ public class StringUtils
      */
     public static String discordToMc(String message)
     {
-        return new MessageFormatter()
+        // Handle markdown formatting
+        String formatted = new MessageFormatter()
                 // Translate italics and bold to Minecraft codes
                 .add(Pattern.compile("_(.+?)_"), "\u00A7o$1\u00A7r")
                 .add(Pattern.compile("\\*\\*(.+?)\\*\\*"), "\u00A7l$1\u00A7r")
@@ -89,5 +92,8 @@ public class StringUtils
                 .add(Pattern.compile("```(.*?)```"), "\u00A77$1\u00A7r")
                 .add(Pattern.compile("`(.*?)`"), "\u00A78$1\u00A7r")
                 .format(message);
+
+        // Handle emoji -> words
+        return Config.EMOJI_TRANSLATION.get() ? EmojiParser.parseToAliases(formatted) : formatted;
     }
 }

@@ -26,6 +26,7 @@ public class Config
 
     private static final String CATEGORY_GENERAL = "general";
     public static ForgeConfigSpec.ConfigValue<String> BOT_TOKEN, COMMAND_PREFIX, COMMAND_UNAUTHORISED;
+    public static ForgeConfigSpec.BooleanValue EMOJI_TRANSLATION;
 
     private static final String CATEGORY_COMMANDS = "commands";
     private static CommandsConfig COMMANDS_TABLE;
@@ -40,6 +41,9 @@ public class Config
 
         BOT_TOKEN = COMMON_BUILDER.comment("Discord bot token")
                                   .define("bot.token", "");
+
+        EMOJI_TRANSLATION = COMMON_BUILDER.comment("Should unicode emojis be translated to word form (i.e. ':emoji:')")
+                                          .define("chat.emoji_translation", true);
 
         COMMAND_PREFIX = COMMON_BUILDER.comment("Discord command prefix")
                                        .define("commands.prefix", "!");

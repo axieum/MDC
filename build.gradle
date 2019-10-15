@@ -69,6 +69,7 @@ dependencies {
     minecraft "net.minecraftforge:forge:${FORGE_VERSION}"
     compile "org.apache.commons:commons-lang3:${LANG3_VERSION}"
     compile "net.dv8tion:JDA:${JDA_VERSION}"
+    compile "com.vdurmont:emoji-java:${EMOJI_JAVA_VERSION}"
 }
 
 repositories {
