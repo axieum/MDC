@@ -6,14 +6,19 @@ import me.axieum.mcmod.mdc.api.ChannelsConfig;
 import me.axieum.mcmod.mdc.util.MessageFormatter;
 import me.axieum.mcmod.mdc.util.StringUtils;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class EventChat implements EventListener
 {
@@ -29,10 +34,18 @@ public class EventChat implements EventListener
             event.getAuthor().getId().equals(DiscordClient.getInstance().getApi().getSelfUser().getId()))
             return;
 
-        // First, we'll treat this as a command message
-        if (!EventCommand.onCommandMessage(event))
-            // A command wasn't executed, treat as a chat message
+        // On regular chat message event
+        if (!event.getMessage().getContentRaw().isEmpty()) {
+            // Attempt to run message as a command
+            if (EventCommand.onCommandMessage(event))
+                return;
+            // Not a command, hence regular chat event
             onChatMessage(event);
+        }
+
+        // On attachments
+        if (!event.getMessage().getAttachments().isEmpty())
+            onAttachment(event);
     }
 
     /**
@@ -62,6 +75,44 @@ public class EventChat implements EventListener
             if (message == null || message.isEmpty()) continue;
 
             final StringTextComponent component = new StringTextComponent(formatter.format(message));
+
+            // Send message
+            for (ServerPlayerEntity player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers())
+                player.sendMessage(component);
+        }
+    }
+
+    /**
+     * Handle a Discord message attachment(s) event.
+     *
+     * @param event Discord message received event
+     */
+    public static void onAttachment(@Nonnull MessageReceivedEvent event)
+    {
+        // Fetch useful information
+        final Member member = event.getMember();
+
+        final String author = member != null ? member.getEffectiveName()
+                                             : event.getAuthor().getName();
+
+        final List<String> attachmentUrls = event.getMessage()
+                                                 .getAttachments()
+                                                 .stream().map(Message.Attachment::getUrl)
+                                                 .collect(Collectors.toList());
+
+        // Prepare formatter
+        final MessageFormatter formatter = new MessageFormatter()
+                .withDateTime("DATE")
+                .add("AUTHOR", author)
+                .addDelimited("ATTACHMENTS", attachmentUrls);
+
+        // Format and send messages
+        for (ChannelsConfig.ChannelConfig channel : Config.getChannels()) {
+            // Fetch the message format
+            String message = channel.getDiscordMessages().attachment;
+            if (message == null || message.isEmpty()) continue;
+
+            final ITextComponent component = ForgeHooks.newChatWithLinks(formatter.format(message));
 
             // Send message
             for (ServerPlayerEntity player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers())

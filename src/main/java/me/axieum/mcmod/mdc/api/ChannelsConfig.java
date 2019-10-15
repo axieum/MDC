@@ -66,7 +66,7 @@ public class ChannelsConfig
          */
         public static class DiscordMessages
         {
-            public String chat, react, unreact, edit;
+            public String chat, attachment, react, unreact, edit;
         }
     }
 }

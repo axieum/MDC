@@ -59,7 +59,7 @@ public class MessageFormatter
     }
 
     /**
-     * Adds common number replacements.
+     * Adds a string formatting replacement.
      *
      * @param token token name
      * @param args  arguments to be formatted into pattern
@@ -68,6 +68,19 @@ public class MessageFormatter
     public MessageFormatter withFormatted(String token, Object... args)
     {
         return add(token, groups -> String.format(groups.get(1), args));
+    }
+
+    /**
+     * Adds delimited replacement.
+     *
+     * @param token token name
+     * @param list  list of strings to be delimited
+     * @return this for chaining
+     */
+    public MessageFormatter addDelimited(String token, List<String> list)
+    {
+        return add(token, groups ->
+                String.join(groups.size() > 1 ? groups.get(1) : ",", list));
     }
 
     /**
