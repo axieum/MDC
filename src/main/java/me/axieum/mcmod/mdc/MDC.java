@@ -2,6 +2,7 @@ package me.axieum.mcmod.mdc;
 
 import me.axieum.mcmod.mdc.command.discord.CommandPing;
 import me.axieum.mcmod.mdc.event.discord.EventChat;
+import me.axieum.mcmod.mdc.event.discord.EventReact;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -28,7 +29,8 @@ public class MDC
         Config.loadConfig(Config.COMMON_CONFIG, FMLPaths.CONFIGDIR.get().resolve("mdc-common.toml"));
 
         // Register Discord event listeners
-        DiscordClient.getInstance().addEventListeners(new EventChat());
+        DiscordClient.getInstance().addEventListeners(new EventChat(),
+                                                      new EventReact());
 
         // Register Discord commands
         DiscordClient.getInstance().addCommands(new CommandPing());
