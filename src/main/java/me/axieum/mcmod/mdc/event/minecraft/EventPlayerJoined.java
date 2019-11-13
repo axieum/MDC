@@ -16,9 +16,9 @@ public class EventPlayerJoined
     @SubscribeEvent
     public static void onPlayerJoined(PlayerEvent.PlayerLoggedInEvent event)
     {
-        // Fetch useful event information
         final PlayerEntity player = event.getPlayer();
 
+        // Fetch useful event information
         final String name = player.getName().getFormattedText();
         final double x = player.prevPosX, y = player.prevPosY, z = player.prevPosZ;
         final String dimension = PlayerUtils.getDimensionName(player);

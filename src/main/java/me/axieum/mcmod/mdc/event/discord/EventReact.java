@@ -47,11 +47,11 @@ public class EventReact implements EventListener
 
         // Fetch useful information about the context of the reaction
         // TODO: May need to check if author is the bot, in which case the
-        //       the author may not represent the actual author. Perhaps,
-        //       prefix the body with the non-bot author?
+        //       author may not represent the actual author. Perhaps, prefix
+        //       the body with the non-bot author?
         final String author = event.getMember() != null ? event.getMember().getEffectiveName()
                                                         : context.getAuthor().getName();
-        final String body = StringUtils.discordToMc(context.getContentDisplay().trim());
+        final String body = StringUtils.discordToMc(context.getContentDisplay());
 
         // Prepare formatter
         final MessageFormatter formatter = new MessageFormatter()

@@ -1,6 +1,5 @@
 package me.axieum.mcmod.mdc;
 
-import me.axieum.mcmod.mdc.command.discord.CommandPing;
 import me.axieum.mcmod.mdc.event.discord.EventChat;
 import me.axieum.mcmod.mdc.event.discord.EventReact;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -32,8 +31,8 @@ public class MDC
         DiscordClient.getInstance().addEventListeners(new EventChat(),
                                                       new EventReact());
 
-        // Register Discord commands
-        DiscordClient.getInstance().addCommands(new CommandPing());
+        // Register Discord commands (not config level)
+//        DiscordClient.getInstance().addCommands(new CommandPing());
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

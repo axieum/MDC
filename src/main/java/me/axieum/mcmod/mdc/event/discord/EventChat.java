@@ -5,7 +5,6 @@ import me.axieum.mcmod.mdc.DiscordClient;
 import me.axieum.mcmod.mdc.api.ChannelsConfig;
 import me.axieum.mcmod.mdc.util.MessageFormatter;
 import me.axieum.mcmod.mdc.util.StringUtils;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -34,14 +33,10 @@ public class EventChat implements EventListener
             event.getAuthor().getId().equals(DiscordClient.getInstance().getApi().getSelfUser().getId()))
             return;
 
-        // On regular chat message event
-        if (!event.getMessage().getContentRaw().isEmpty()) {
-            // Attempt to run message as a command
-            if (EventCommand.onCommandMessage(event))
-                return;
-            // Not a command, hence regular chat event
-            onChatMessage(event);
-        }
+        // On regular chat message event, attempt treat as a command, else chat
+        if (!event.getMessage().getContentRaw().isEmpty())
+            if (!EventCommand.onCommandMessage(event))
+                onChatMessage(event);
 
         // On attachments
         if (!event.getMessage().getAttachments().isEmpty())
@@ -53,14 +48,12 @@ public class EventChat implements EventListener
      *
      * @param event Discord message received event
      */
-    public static void onChatMessage(@Nonnull MessageReceivedEvent event)
+    private static void onChatMessage(@Nonnull MessageReceivedEvent event)
     {
         // Fetch useful information
-        final Member member = event.getMember();
-
-        final String author = member != null ? member.getEffectiveName()
-                                             : event.getAuthor().getName();
-        final String body = StringUtils.discordToMc(event.getMessage().getContentDisplay().trim());
+        final String author = event.getMember() != null ? event.getMember().getEffectiveName()
+                                                        : event.getAuthor().getName();
+        final String body = StringUtils.discordToMc(event.getMessage().getContentDisplay());
 
         // Prepare formatter
         final MessageFormatter formatter = new MessageFormatter()
@@ -87,13 +80,11 @@ public class EventChat implements EventListener
      *
      * @param event Discord message received event
      */
-    public static void onAttachment(@Nonnull MessageReceivedEvent event)
+    private static void onAttachment(@Nonnull MessageReceivedEvent event)
     {
         // Fetch useful information
-        final Member member = event.getMember();
-
-        final String author = member != null ? member.getEffectiveName()
-                                             : event.getAuthor().getName();
+        final String author = event.getMember() != null ? event.getMember().getEffectiveName()
+                                                        : event.getAuthor().getName();
 
         final List<String> attachmentUrls = event.getMessage()
                                                  .getAttachments()

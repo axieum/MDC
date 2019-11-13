@@ -17,6 +17,8 @@ public class EventServerStopped
     @SubscribeEvent
     public static void onServerStopped(FMLServerStoppedEvent event)
     {
+        final boolean crashed = MDC.stoppingAt == 0;
+
         // Prepare formatter
         final MessageFormatter formatter = new MessageFormatter()
                 .withDateTime("DATE")
@@ -26,8 +28,9 @@ public class EventServerStopped
         // Format and send messages
         final DiscordClient discord = DiscordClient.getInstance();
         for (ChannelConfig channel : Config.getChannels()) {
-            // Fetch the message format
-            String message = MDC.stoppingAt == 0 ? channel.getMCMessages().crashed : channel.getMCMessages().stopped;
+            // Fetch the message format - whether crashed or not
+            String message = crashed ? channel.getMCMessages().crashed
+                                     : channel.getMCMessages().stopped;
             if (message == null || message.isEmpty()) continue;
 
             // Send message

@@ -35,7 +35,7 @@ public class EventPlayerChat
         // Format and send messages
         final DiscordClient discord = DiscordClient.getInstance();
         for (ChannelsConfig.ChannelConfig channel : Config.getChannels()) {
-            // Fetch the started message format
+            // Fetch the message format
             String message = channel.getMCMessages().chat;
             if (message == null || message.isEmpty()) continue;
 

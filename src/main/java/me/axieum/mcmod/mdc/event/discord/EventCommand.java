@@ -14,7 +14,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,7 +29,7 @@ public class EventCommand
     {
         // Is this a command - starts with prefix?
         // NB: bailing out as soon as possible saves us from checking every
-        // registered command's names
+        // registered command's names - a fixed prefix has performance benefits
         final String body = event.getMessage().getContentRaw();
         if (!body.startsWith(Config.COMMAND_PREFIX.get())) return false;
 
@@ -39,20 +38,21 @@ public class EventCommand
         final Member member = event.getMember();
         final TextChannel channel = event.getTextChannel();
 
-
-        final List<String> args = new ArrayList<>(Arrays.asList(body.split(" ")));
-        final String cmd = args.remove(0).substring(Config.COMMAND_PREFIX.get().length());
+        final List<String> args = Arrays.asList(body.split("\\s"));
+        final String cmd = args.remove(0)
+                               .substring(Config.COMMAND_PREFIX.get().length());
 
         final String unauthorisedMsg = new MessageFormatter()
                 .add("MENTION", event.getAuthor().getAsMention())
-                .add("COMMAND", body.trim())
+                .add("COMMAND", cmd)
+                .add("ARGS", args.toString())
                 .format(Config.COMMAND_UNAUTHORISED.get());
 
         // Keep track of whether we handled a command or not
         boolean isCommand = false;
 
         // Attempt to match this command with its registered handler(s)
-        for (DiscordCommand command : DiscordClient.getInstance().getCommands()) {
+        for (DiscordCommand command : discord.getCommands()) {
             if (command.getNames().stream().noneMatch(name -> name.equalsIgnoreCase(cmd)))
                 continue;
 
@@ -94,17 +94,18 @@ public class EventCommand
         for (int i = 0; i < args.size(); i++)
             command = command.replaceAll("\\{\\{" + i + "}}", args.get(i));
 
-        // Replace "{{}}" with all arguments
-        command = command.replaceAll("\\{\\{}}", String.join(" ", args));
+        // Replace "{{*}}" with all arguments
+        command = command.replaceAll("\\{\\{\\*}}", String.join(" ", args));
 
         // Replace all left over placeholders
         command = command.replaceAll("\\{\\{\\d*}}", "").trim();
 
         // Do we have permission to execute commands on the server?
         final MDCCommandSender sender = new MDCCommandSender(member, channel);
-        if (!sender.hasPermissionLevel(4)) {
+        if (sender.hasPermissionLevel(4)) {
             MDC.LOGGER.warn("MDC (uuid={}) does not have sufficient permission level (4) to execute commands.",
                             sender.getUniqueID().toString());
+            channel.sendMessage(":warning: The bot does not have sufficient permissions!").queue();
             return;
         }
 
@@ -114,10 +115,11 @@ public class EventCommand
                                 .getCommandManager()
                                 .getDispatcher()
                                 .execute(command, sender.getCommandSource());
-            MDC.LOGGER.error("Discord command proxied successfully: '/{}'", command);
+            MDC.LOGGER.info("Discord command proxied successfully: '/{}'", command);
         } catch (CommandSyntaxException e) {
-            MDC.LOGGER.error("Discord command proxy failed for '/{}': {}", command, e.getRawMessage().getString());
-            channel.sendMessage(":warning: " + e.getRawMessage().getString()).queue();
+            final String error = e.getRawMessage().getString();
+            MDC.LOGGER.error("Discord command proxy failed for '/{}': {}", command, error);
+            channel.sendMessage(":warning: " + error).queue();
         }
     }
 }

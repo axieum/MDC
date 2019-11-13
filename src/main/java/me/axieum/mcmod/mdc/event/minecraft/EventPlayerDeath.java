@@ -19,10 +19,9 @@ public class EventPlayerDeath
     {
         // Is this a player dying?
         if (!(event.getEntityLiving() instanceof PlayerEntity)) return;
-
-        // Fetch useful event information
         final PlayerEntity player = (PlayerEntity) event.getEntityLiving();
 
+        // Fetch useful event information
         final String name = player.getName().getFormattedText();
         final String holding = PlayerUtils.getHeldItemName(player);
         final double x = player.prevPosX, y = player.prevPosY, z = player.prevPosZ;
@@ -46,7 +45,7 @@ public class EventPlayerDeath
         // Format and send messages
         final DiscordClient discord = DiscordClient.getInstance();
         for (ChannelConfig channel : Config.getChannels()) {
-            // Fetch the started message format
+            // Fetch the message format
             String message = channel.getMCMessages().death;
             if (message == null || message.isEmpty()) continue;
 
