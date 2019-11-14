@@ -46,7 +46,7 @@ public class EventCommand
                 .add("MENTION", event.getAuthor().getAsMention())
                 .add("COMMAND", cmd)
                 .add("ARGS", args.toString())
-                .format(Config.COMMAND_UNAUTHORISED.get());
+                .apply(Config.COMMAND_UNAUTHORISED.get());
 
         // Keep track of whether we handled a command or not
         boolean isCommand = false;

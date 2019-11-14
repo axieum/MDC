@@ -20,6 +20,7 @@ public class EventPlayerChat
     {
         // Fetch useful information
         PlayerEntity player = event.getPlayer();
+        final int dimensionId = player.dimension.getId();
 
         final String name = player.getName().getFormattedText();
         final String body = StringUtils.mcToDiscord(event.getMessage());
@@ -27,7 +28,7 @@ public class EventPlayerChat
 
         // Prepare formatter
         final MessageFormatter formatter = new MessageFormatter()
-                .withDateTime("DATE")
+                .addDateTime("DATETIME")
                 .add("PLAYER", name)
                 .add("MESSAGE", body)
                 .add("DIMENSION", dimension);
@@ -39,8 +40,11 @@ public class EventPlayerChat
             String message = channel.getMCMessages().chat;
             if (message == null || message.isEmpty()) continue;
 
+            // Does this config entry listen to this dimension?
+            if (!channel.listensToDimension(dimensionId)) continue;
+
             // Send message
-            discord.sendMessage(formatter.format(message), channel.id);
+            discord.sendMessage(formatter.apply(message), channel.id);
         }
     }
 }

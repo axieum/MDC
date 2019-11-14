@@ -2,20 +2,20 @@ package me.axieum.mcmod.mdc.util;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MessageFormatter
 {
-    private LinkedHashMap<Pattern, String> literals = new LinkedHashMap<>();
-    private LinkedHashMap<Pattern, TokenReplacer> functional = new LinkedHashMap<>();
+    private LinkedHashMap<Pattern, TokenReplacer> replacers = new LinkedHashMap<>();
 
     /**
      * Constructs a new Message Formatter instance.
@@ -23,198 +23,225 @@ public class MessageFormatter
     public MessageFormatter() {}
 
     /**
-     * Adds common datetime replacements.
+     * Adds a date token.
      *
-     * @param token    token name
-     * @param datetime datetime to use during replacements
-     * @return this for chaining
+     * @param token token name to match
+     * @param date  date to use for replacements
+     * @return a reference to this object
      */
-    public MessageFormatter withDateTime(String token, LocalDateTime datetime)
+    public MessageFormatter addDate(String token, LocalDate date)
     {
-        return add(token, groups -> datetime.format(DateTimeFormatter.ofPattern(groups.get(1))));
+        return add(token, match -> {
+            try {
+                return date.format(DateTimeFormatter.ofPattern(match.get(2)));
+            } catch (Exception e) { return ""; }
+        });
     }
 
     /**
-     * Adds common datetime replacements with current datetime.
+     * Adds a date token using the current date.
      *
-     * @param token token name
-     * @return this for chaining
+     * @param token token name to match
+     * @return a reference to this object
+     * @see #addDate(String, LocalDate)
      */
-    public MessageFormatter withDateTime(String token)
+    public MessageFormatter addDate(String token)
     {
-        return withDateTime(token, LocalDateTime.now());
+        return addDate(token, LocalDate.now());
     }
 
     /**
-     * Adds common duration replacements.
+     * Adds a time token.
      *
-     * @param token    token name
-     * @param duration duration to use during replacements
-     * @return this for chaining
+     * @param token token name to match
+     * @param time  time to use for replacements
+     * @return a reference to this object
      */
-    public MessageFormatter withDuration(String token, Duration duration)
+    public MessageFormatter addTime(String token, LocalTime time)
+    {
+        return add(token, match -> {
+            try {
+                return time.format(DateTimeFormatter.ofPattern(match.get(2)));
+            } catch (Exception e) { return ""; }
+        });
+    }
+
+    /**
+     * Adds a time token using the current time.
+     *
+     * @param token token name to match
+     * @return a reference to this object
+     * @see #addTime(String, LocalTime)
+     */
+    public MessageFormatter addTime(String token)
+    {
+        return addTime(token, LocalTime.now());
+    }
+
+    /**
+     * Adds a date time token.
+     *
+     * @param token    token name to match
+     * @param dateTime date time to use for replacements
+     * @return a reference to this object
+     */
+    public MessageFormatter addDateTime(String token, LocalDateTime dateTime)
+    {
+        return add(token, match -> {
+            try {
+                return dateTime.format(DateTimeFormatter.ofPattern(match.get(2)));
+            } catch (Exception e) { return ""; }
+        });
+    }
+
+    /**
+     * Adds a date time token using the current date and time.
+     *
+     * @param token token name to match
+     * @return a reference to this object
+     * @see #addDateTime(String, LocalDateTime)
+     */
+    public MessageFormatter addDateTime(String token)
+    {
+        return addDateTime(token, LocalDateTime.now());
+    }
+
+    /**
+     * Adds a duration token.
+     *
+     * @param token    token name to match
+     * @param duration duration to use for replacements
+     * @return a reference to this object
+     */
+    public MessageFormatter addDuration(String token, Duration duration)
     {
         final long millis = Math.abs(duration.toMillis());
-        return add(token, groups -> DurationFormatUtils.formatDuration(millis, groups.get(1)));
+        return add(token, match ->
+                match.size() > 2 ? DurationFormatUtils.formatDuration(millis, match.get(2))
+                                 : DurationFormatUtils.formatDurationHMS(millis));
     }
 
     /**
-     * Adds a string formatting replacement.
+     * Adds an optional token that uses a fallback replacement if the given
+     * replacement is empty or {@code null}.
      *
-     * @param token token name
-     * @param args  arguments to be formatted into pattern
-     * @return this for chaining
+     * @param token       token name to match
+     * @param replacement replacement
+     * @param fallback    default fallback if replacement is empty/{@code null}
+     *                    and token does not specify its own fallback value
+     * @return a reference to this object
      */
-    public MessageFormatter withFormatted(String token, Object... args)
+    public MessageFormatter addOptional(String token, @Nullable String replacement, @Nonnull String fallback)
     {
-        return add(token, groups -> String.format(groups.get(1), args));
+        if (replacement == null || replacement.isEmpty())
+            return add(token, match -> match.size() > 2 ? match.get(2) : fallback);
+        return add(token, match -> replacement);
     }
 
     /**
-     * Adds delimited replacement.
+     * Adds a string format token.
      *
-     * @param token token name
-     * @param list  list of strings to be delimited
-     * @return this for chaining
+     * @param token token name to match
+     * @param args  arguments referenced by the formatter
+     * @return a reference to this object
+     * @see String#format(String, Object...)
      */
-    public MessageFormatter addDelimited(String token, List<String> list)
+    public MessageFormatter addFormatted(String token, Object... args)
     {
-        return add(token, groups ->
-                String.join(groups.size() > 1 ? groups.get(1) : ",", list));
+        return add(token, match -> {
+            try {
+                return String.format(match.get(2), args);
+            } catch (IllegalFormatException e) { return ""; }
+        });
     }
 
     /**
-     * Adds an optional literal replacement.
+     * Adds a new regex replacement.
      *
-     * @param token       token name
-     * @param replacement string literal to replace match with
-     * @return this for chaining
-     */
-    public MessageFormatter addOptional(String token, String replacement)
-    {
-        return add(token, groups ->
-                replacement == null || replacement.isEmpty() ? groups.get(1)
-                                                             : replacement);
-    }
-
-    /**
-     * Adds an optional functional replacement.
-     *
-     * @param token       token name
-     * @param replacement string literal to replace match with
-     * @param fallback    fallback replacer if replacement missing
-     * @return this for chaining
-     */
-    public MessageFormatter addOptional(String token, String replacement, TokenReplacer fallback)
-    {
-        return replacement == null || replacement.isEmpty() ? add(token, fallback)
-                                                            : add(token, replacement);
-    }
-
-    /**
-     * Adds an optional functional replacement.
-     *
-     * @param token       regex pattern to find
-     * @param replacement string literal to replace match with
-     * @param fallback    fallback replacer if replacement missing
-     * @return this for chaining
-     */
-    public MessageFormatter addOptional(Pattern token, String replacement, TokenReplacer fallback)
-    {
-        return replacement == null || replacement.isEmpty() ? add(token, fallback)
-                                                            : add(token, replacement);
-    }
-
-    /**
-     * Add a new regex literal replacement.
-     *
-     * @param regex       regex pattern to find
-     * @param replacement string literal to replace match with
-     * @return this for chaining
-     */
-    public MessageFormatter add(Pattern regex, String replacement)
-    {
-        literals.put(regex, replacement);
-        return this;
-    }
-
-    /**
-     * Add a new token literal replacement.
-     *
-     * @param token       token name
-     * @param replacement string literal to replace match with
-     * @return this for chaining
-     * @see MessageFormatter#add(Pattern, String)
-     */
-    public MessageFormatter add(String token, String replacement)
-    {
-        return add(Pattern.compile("\\{" + Pattern.quote(token) + "}"), replacement);
-    }
-
-    /**
-     * Add a new regex functional replacement. The replacer will be called with
-     * all matched groups, the first being the entire match.
-     *
-     * @param regex    regex pattern to find
-     * @param replacer match replacer function
-     * @return this for chaining
+     * @param regex    regex pattern to match
+     * @param replacer match replacer
+     * @return a reference to this object
      */
     public MessageFormatter add(Pattern regex, TokenReplacer replacer)
     {
-        functional.put(regex, replacer);
+        replacers.put(regex, replacer);
         return this;
     }
 
     /**
-     * Add a new token functional replacement. The replacer will be called with
-     * two groups: entire match and argument after the pipe (i.e.
-     * "{DATE|argument}").
+     * Adds a new regex replacement.
      *
-     * @param token    token name (i.e. "DATE" -> "{DATE|format}")
-     * @param replacer match replacer function
-     * @return this for chaining
+     * @param regex       regex pattern to match
+     * @param replacement plaintext replacement
+     * @return a reference to this object
+     * @see MessageFormatter#add(Pattern, TokenReplacer)
+     */
+    public MessageFormatter add(Pattern regex, String replacement)
+    {
+        return add(regex, match -> replacement);
+    }
+
+    /**
+     * Adds a new token replacement.
+     *
+     * @param token    token name to match
+     * @param replacer match replacer with groups: all, token, arguments
+     * @return a reference to this object
      * @see MessageFormatter#add(Pattern, TokenReplacer)
      */
     public MessageFormatter add(String token, TokenReplacer replacer)
     {
-        return add(Pattern.compile("\\{" + Pattern.quote(token) + "\\|(.*?)}"), replacer);
+        return add(Pattern.compile("\\{\\{(" + Pattern.quote(token) + ")(?:\\|(.*?))?}}"), replacer);
     }
 
     /**
-     * Apply this formatter to a given template.
+     * Adds a new token replacement.
      *
-     * @param template string template to format
-     * @return template formatted with rules
+     * @param token       token name to match
+     * @param replacement plaintext replacement
+     * @return a reference to this object
+     * @see MessageFormatter#add(String, TokenReplacer)
      */
-    public String format(final String template)
+    public MessageFormatter add(String token, String replacement)
+    {
+        return add(token, match -> replacement);
+    }
+
+    /**
+     * Applies this formatter to a given message template to obtain a new
+     * formatted message.
+     *
+     * @param template message template to format
+     * @return formatted message
+     */
+    public String apply(String template)
     {
         if (template == null || template.isEmpty()) return "";
 
-        // Handle literal replacements
-        String message = template;
-        for (Map.Entry<Pattern, String> entry : literals.entrySet())
-            message = message.replaceAll(entry.getKey().pattern(), entry.getValue());
-
         // Handle functional replacements
-        for (Map.Entry<Pattern, TokenReplacer> entry : functional.entrySet()) {
-            Matcher matcher = entry.getKey().matcher(message);
+        String message = template;
+        for (Map.Entry<Pattern, TokenReplacer> entry : replacers.entrySet()) {
+            Pattern token = entry.getKey();
+            TokenReplacer replacer = entry.getValue();
+
+            Matcher matcher = token.matcher(message);
             if (matcher.find()) {
                 StringBuffer sb = new StringBuffer();
                 do {
                     // Fetch regex groups
-                    ArrayList<String> groups = new ArrayList<>();
-                    for (int i = 0, j = matcher.groupCount(); i <= j; i++)
-                        groups.add(matcher.group(i));
+                    final int groupCount = matcher.groupCount();
+                    ArrayList<String> groups = new ArrayList<>(groupCount);
+                    for (int i = 0; i <= groupCount; i++) {
+                        String group = matcher.group(i);
+                        if (group != null) groups.add(group);
+                    }
                     // Append the replacement supplied by the functional callback
-                    matcher.appendReplacement(sb, entry.getValue().replace(groups));
+                    matcher.appendReplacement(sb, replacer.replace(groups));
                 } while (matcher.find());
                 matcher.appendTail(sb);
                 message = sb.toString();
             }
         }
-
-        // Post replacements
-        message = message.replace("\\n", "\n");
 
         return message;
     }
@@ -222,10 +249,10 @@ public class MessageFormatter
     public interface TokenReplacer
     {
         /**
-         * Handle replacement of a regex match.
+         * Computes the replacement text for a regex match.
          *
-         * @param groups list of captured regex groups (first is entire regex match)
-         * @return replacement for entire regex match
+         * @param groups list of captured regex groups - first is entire match
+         * @return replacement string for entire regex match
          */
         String replace(List<String> groups);
     }

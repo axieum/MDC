@@ -20,8 +20,8 @@ public class EventServerStarted
     {
         // Prepare formatter
         final MessageFormatter formatter = new MessageFormatter()
-                .withDateTime("DATE")
-                .withDuration("ELAPSED", Duration.ofMillis(MDC.startedAt - MDC.startingAt));
+                .addDateTime("DATETIME")
+                .addDuration("ELAPSED", Duration.ofMillis(MDC.startedAt - MDC.startingAt));
 
         // Format and send messages
         final DiscordClient discord = DiscordClient.getInstance();
@@ -31,7 +31,7 @@ public class EventServerStarted
             if (message == null || message.isEmpty()) continue;
 
             // Send message
-            discord.sendMessage(formatter.format(message), channel.id);
+            discord.sendMessage(formatter.apply(message), channel.id);
         }
     }
 }

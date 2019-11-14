@@ -1,15 +1,48 @@
 package me.axieum.mcmod.mdc.util;
 
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class PlayerUtils
 {
     public static HashMap<PlayerEntity, Long> loginTimes = new HashMap<>();
+
+    /**
+     * Send a message to all online players.
+     *
+     * @param component text component to be sent
+     */
+    public static void sendAllMessage(ITextComponent component)
+    {
+        for (ServerPlayerEntity player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers())
+            player.sendMessage(component);
+    }
+
+    /**
+     * Send a message to all online players in the given dimension(s).
+     *
+     * @param component    text component to be sent
+     * @param dimensionIds dimension(s) ids players must be in to receive message
+     */
+    public static void sendAllMessage(ITextComponent component, List<Integer> dimensionIds)
+    {
+        if (dimensionIds != null && !dimensionIds.isEmpty())
+            for (ServerPlayerEntity player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers()) {
+                final int playerDimId = player.dimension.getId();
+                if (dimensionIds.stream().anyMatch(dimensionId -> playerDimId == dimensionId))
+                    player.sendMessage(component);
+            }
+        else
+            sendAllMessage(component);
+    }
 
     /**
      * Get dimension name of player in title format.

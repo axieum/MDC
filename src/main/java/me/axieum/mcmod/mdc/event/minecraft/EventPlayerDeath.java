@@ -25,6 +25,7 @@ public class EventPlayerDeath
         final String name = player.getName().getFormattedText();
         final String holding = PlayerUtils.getHeldItemName(player);
         final double x = player.prevPosX, y = player.prevPosY, z = player.prevPosZ;
+        final int dimensionId = player.dimension.getId();
         final String dimension = PlayerUtils.getDimensionName(player);
         final String cause = event.getSource()
                                   .getDeathMessage(event.getEntityLiving())
@@ -33,10 +34,10 @@ public class EventPlayerDeath
 
         // Prepare formatter
         final MessageFormatter formatter = new MessageFormatter()
-                .withDateTime("DATE")
+                .addDateTime("DATETIME")
                 .add("PLAYER", name)
                 .add("CAUSE", cause)
-                .addOptional("HOLDING", holding)
+                .addOptional("HOLDING", holding, "")
                 .add("DIMENSION", dimension)
                 .add("X", String.valueOf((int) x))
                 .add("Y", String.valueOf((int) y))
@@ -49,8 +50,11 @@ public class EventPlayerDeath
             String message = channel.getMCMessages().death;
             if (message == null || message.isEmpty()) continue;
 
+            // Does this config entry listen to this dimension?
+            if (!channel.listensToDimension(dimensionId)) continue;
+
             // Send message
-            discord.sendMessage(formatter.format(message), channel.id);
+            discord.sendMessage(formatter.apply(message), channel.id);
         }
     }
 }

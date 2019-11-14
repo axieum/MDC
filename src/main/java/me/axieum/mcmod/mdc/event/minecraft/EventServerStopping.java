@@ -19,9 +19,9 @@ public class EventServerStopping
     {
         // Prepare formatter
         final MessageFormatter formatter = new MessageFormatter()
-                .withDateTime("DATE")
-                .withDuration("UPTIME",
-                              Duration.ofMillis(System.currentTimeMillis() - MDC.startedAt));
+                .addDateTime("DATETIME")
+                .addDuration("UPTIME",
+                             Duration.ofMillis(System.currentTimeMillis() - MDC.startedAt));
 
         // Format and send messages
         final DiscordClient discord = DiscordClient.getInstance();
@@ -31,7 +31,7 @@ public class EventServerStopping
             if (message == null || message.isEmpty()) continue;
 
             // Send message
-            discord.sendMessage(formatter.format(message), channel.id);
+            discord.sendMessage(formatter.apply(message), channel.id);
         }
     }
 }

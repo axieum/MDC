@@ -21,11 +21,12 @@ public class EventPlayerJoined
         // Fetch useful event information
         final String name = player.getName().getFormattedText();
         final double x = player.prevPosX, y = player.prevPosY, z = player.prevPosZ;
+        final int dimensionId = player.dimension.getId();
         final String dimension = PlayerUtils.getDimensionName(player);
 
         // Prepare formatter
         final MessageFormatter formatter = new MessageFormatter()
-                .withDateTime("DATE")
+                .addDateTime("DATETIME")
                 .add("PLAYER", name)
                 .add("DIMENSION", dimension)
                 .add("X", String.valueOf((int) x))
@@ -39,8 +40,11 @@ public class EventPlayerJoined
             String message = channel.getMCMessages().join;
             if (message == null || message.isEmpty()) continue;
 
+            // Does this config entry listen to this dimension?
+            if (!channel.listensToDimension(dimensionId)) continue;
+
             // Send message
-            discord.sendMessage(formatter.format(message), channel.id);
+            discord.sendMessage(formatter.apply(message), channel.id);
         }
 
         // Cache their login time (NB: for computing play time)

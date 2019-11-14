@@ -21,6 +21,7 @@ public class EventPlayerAdvancement
         if (info == null || !info.shouldAnnounceToChat()) return;
 
         // Fetch useful event information
+        final int dimensionId = event.getEntityLiving().dimension.getId();
         final String name = event.getEntityLiving().getName().getFormattedText();
         final String type = info.getFrame().getName();
         final String title = info.getTitle().getUnformattedComponentText();
@@ -28,7 +29,7 @@ public class EventPlayerAdvancement
 
         // Prepare formatter
         final MessageFormatter formatter = new MessageFormatter()
-                .withDateTime("DATE")
+                .addDateTime("DATETIME")
                 .add("PLAYER", name)
                 .add("TYPE", type)
                 .add("TITLE", title)
@@ -41,8 +42,11 @@ public class EventPlayerAdvancement
             String message = channel.getMCMessages().advancement;
             if (message == null || message.isEmpty()) continue;
 
+            // Does this config entry listen to this dimension?
+            if (!channel.listensToDimension(dimensionId)) continue;
+
             // Send message
-            discord.sendMessage(formatter.format(message), channel.id);
+            discord.sendMessage(formatter.apply(message), channel.id);
         }
     }
 }

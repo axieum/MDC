@@ -5,15 +5,14 @@ import me.axieum.mcmod.mdc.Config;
 import me.axieum.mcmod.mdc.MDC;
 import me.axieum.mcmod.mdc.api.ChannelsConfig;
 import me.axieum.mcmod.mdc.util.MessageFormatter;
+import me.axieum.mcmod.mdc.util.PlayerUtils;
 import me.axieum.mcmod.mdc.util.StringUtils;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
 
@@ -55,7 +54,7 @@ public class EventReact implements EventListener
 
         // Prepare formatter
         final MessageFormatter formatter = new MessageFormatter()
-                .withDateTime("DATE")
+                .addDateTime("DATETIME")
                 .add("AUTHOR", author)
                 .add("REACTOR", reactor)
                 // Should we translate unicode to names (e.g. to ':smiley:')
@@ -63,13 +62,12 @@ public class EventReact implements EventListener
                 // Accept first argument of message format as max characters to show
                 .add("MESSAGE", args -> {
                     try {
-                        final int max = Integer.parseInt(args.get(1));
+                        final int max = Integer.parseInt(args.get(2));
                         // Truncate message to maximum length
-                        return body.length() > max ? body.substring(0, max).concat("...")
-                                                   : body;
-                    } catch (NumberFormatException e) {
+                        return body.length() > max ? body.substring(0, max).concat("...") : body;
+                    } catch (Exception e) {
                         MDC.LOGGER.error("Unable to format '{}': {}", args.get(0), e.getMessage());
-                        return args.get(0); // unmodified
+                        return "";
                     }
                 });
 
@@ -80,11 +78,8 @@ public class EventReact implements EventListener
                                    : channel.getDiscordMessages().unreact;
             if (message == null || message.isEmpty()) continue;
 
-            final StringTextComponent component = new StringTextComponent(formatter.format(message));
-
             // Send message
-            for (ServerPlayerEntity player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers())
-                player.sendMessage(component);
+            PlayerUtils.sendAllMessage(new StringTextComponent(formatter.apply(message)), channel.dimensions);
         }
     }
 }

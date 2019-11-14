@@ -20,6 +20,19 @@ public class ChannelsConfig
         public DiscordMessages discord;
 
         /**
+         * Returns whether this config entry listens to the given dimension id.
+         *
+         * @param dimensionId dimension id to check
+         * @return true if the dimension id is in the {@link ChannelConfig#dimensions} list
+         */
+        public boolean listensToDimension(int dimensionId)
+        {
+            if (dimensions == null || dimensions.isEmpty())
+                return false;
+            return dimensions.stream().anyMatch(id -> id == dimensionId);
+        }
+
+        /**
          * Retrieve the channel's Minecraft Messages instance or create a new instance
          * if it is not set.
          *

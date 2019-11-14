@@ -68,7 +68,7 @@ public class StringUtils
                 })
                 // Strip left over formatting codes and return
                 .add(Pattern.compile("[\u00A7][0-9a-fk-or]"), "")
-                .format(message);
+                .apply(message);
     }
 
     /**
@@ -91,7 +91,7 @@ public class StringUtils
                 .add(Pattern.compile("```(\\w*)\\n(.*?)\\n?```"), "($1) \u00A79$2\u00A7r")
                 .add(Pattern.compile("```(.*?)```"), "\u00A77$1\u00A7r")
                 .add(Pattern.compile("`(.*?)`"), "\u00A78$1\u00A7r")
-                .format(message);
+                .apply(message);
 
         // Handle emoji -> words
         return Config.EMOJI_TRANSLATION.get() ? EmojiParser.parseToAliases(formatted) : formatted;
