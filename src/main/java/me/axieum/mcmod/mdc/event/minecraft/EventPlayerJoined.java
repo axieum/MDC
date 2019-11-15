@@ -20,7 +20,7 @@ public class EventPlayerJoined
 
         // Fetch useful event information
         final String name = player.getName().getFormattedText();
-        final double x = player.prevPosX, y = player.prevPosY, z = player.prevPosZ;
+        final double x = player.posX, y = player.posY, z = player.posZ;
         final int dimensionId = player.dimension.getId();
         final String dimension = PlayerUtils.getDimensionName(player);
 

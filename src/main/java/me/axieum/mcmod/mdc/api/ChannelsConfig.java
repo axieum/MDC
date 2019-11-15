@@ -65,6 +65,7 @@ public class ChannelsConfig
         {
             public String join,
                     leave,
+                    dimension,
                     death,
                     advancement,
                     chat,

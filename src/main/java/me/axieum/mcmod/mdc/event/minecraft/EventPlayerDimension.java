@@ -10,13 +10,11 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.time.Duration;
-
 @Mod.EventBusSubscriber
-public class EventPlayerLeft
+public class EventPlayerDimension
 {
     @SubscribeEvent
-    public static void onPlayerLeft(PlayerEvent.PlayerLoggedOutEvent event)
+    public static void onPlayerChangeDimension(PlayerEvent.PlayerChangedDimensionEvent event)
     {
         final PlayerEntity player = event.getPlayer();
 
@@ -25,13 +23,11 @@ public class EventPlayerLeft
         final double x = player.posX, y = player.posY, z = player.posZ;
         final int dimensionId = player.dimension.getId();
         final String dimension = PlayerUtils.getDimensionName(player);
-        final Duration elapsed = Duration.ofMillis(PlayerUtils.getSessionPlayTime(player));
 
         // Prepare formatter
         final MessageFormatter formatter = new MessageFormatter()
                 .addDateTime("DATETIME")
                 .add("PLAYER", name)
-                .addDuration("ELAPSED", elapsed)
                 .add("DIMENSION", dimension)
                 .add("X", String.valueOf((int) x))
                 .add("Y", String.valueOf((int) y))
@@ -41,7 +37,7 @@ public class EventPlayerLeft
         final DiscordClient discord = DiscordClient.getInstance();
         for (ChannelConfig channel : Config.getChannels()) {
             // Fetch the message format
-            String message = channel.getMCMessages().leave;
+            String message = channel.getMCMessages().dimension;
             if (message == null || message.isEmpty()) continue;
 
             // Does this config entry listen to this dimension?
@@ -50,8 +46,5 @@ public class EventPlayerLeft
             // Send message
             discord.sendMessage(formatter.apply(message), channel.id);
         }
-
-        // We are done with the login time
-        PlayerUtils.loginTimes.remove(player);
     }
 }
