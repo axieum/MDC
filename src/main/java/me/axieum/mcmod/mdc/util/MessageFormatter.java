@@ -248,7 +248,7 @@ public class MessageFormatter
                         if (group != null) groups.add(group);
                     }
                     // Append the replacement supplied by the functional callback
-                    matcher.appendReplacement(sb, replacer.replace(groups));
+                    matcher.appendReplacement(sb, Matcher.quoteReplacement(replacer.replace(groups)));
                 } while (matcher.find());
                 matcher.appendTail(sb);
                 message = sb.toString();
