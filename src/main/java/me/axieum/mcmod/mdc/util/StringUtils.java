@@ -3,8 +3,9 @@ package me.axieum.mcmod.mdc.util;
 import com.vdurmont.emoji.EmojiParser;
 import me.axieum.mcmod.mdc.Config;
 import me.axieum.mcmod.mdc.DiscordClient;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.User;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -46,23 +47,31 @@ public class StringUtils
      */
     public static String mcToDiscord(String message)
     {
+        final JDA discord = DiscordClient.getInstance().getApi();
         return new MessageFormatter()
-                // Translate italics and bold to markdown
+                // Translate italics, bold and strikethrough to markdown
                 .add(Pattern.compile("(?<=[\u00A7]o)(.+?)(?=\\s?[\u00A7]r|$)"), "_$1_")
                 .add(Pattern.compile("(?<=[\u00A7]l)(.+?)(?=\\s?[\u00A7]r|$)"), "**$1**")
+                .add(Pattern.compile("(?<=[\u00A7]m)(.+?)(?=\\s?[\u00A7]r|$)"), "~~$1~~")
                 // Handle @mentions
-                .add(Pattern.compile("@([A-Za-z0-9\\-_()\\[\\]]+)"), groups -> {
-                    // Attempt to match mention to a Discord user
-                    List<User> users = DiscordClient.getInstance().getApi().getUsersByName(groups.get(1), true);
-                    if (users.size() < 1) return groups.get(0); // no users, don't change anything
-                    return users.get(0).getAsMention(); // try to mention first user
+                .addReplacement("@everyone", "@_everyone_") // suppress @everyone
+                .addReplacement("@here", "@_here_") // suppress @here
+                .add(Pattern.compile("@([^\\s]+)"), groups -> {
+                    // Attempt to match mention to a Discord member from all Guilds
+                    // NB: We have to use Guilds as nicknames only exist of Members
+                    //     which in turn only exist in Guilds.
+                    final String lookup = groups.get(1);
+                    Member member = discord.getGuilds()
+                                           .stream()
+                                           .flatMap(guild -> guild.getMembersByEffectiveName(lookup, true).stream())
+                                           .findFirst().orElse(null);
+                    // If we found a member, mention them, else don't touch it
+                    return member != null ? member.getAsMention() : groups.get(0);
                 })
                 // Handle #channels
-                .add(Pattern.compile("#([A-Za-z0-9\\-_]+)"), groups -> {
+                .add(Pattern.compile("#([^\\s]+)"), groups -> {
                     // Attempt to match a channel to a Discord channel
-                    List<TextChannel> channels = DiscordClient.getInstance()
-                                                              .getApi()
-                                                              .getTextChannelsByName(groups.get(1), true);
+                    List<TextChannel> channels = discord.getTextChannelsByName(groups.get(1), true);
                     if (channels.size() < 1) return groups.get(0); // no channels, don't change anything
                     return channels.get(0).getAsMention(); // try to mention first channel
                 })

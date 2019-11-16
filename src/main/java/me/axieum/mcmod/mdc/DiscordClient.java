@@ -198,8 +198,11 @@ public class DiscordClient extends ListenerAdapter
     public void sendMessage(String message, long... channelIds)
     {
         if (!isReady() || message.isEmpty()) return;
-        for (long channelId : channelIds)
-            sendMessage(message, api.getTextChannelById(channelId));
+        // Map channel ids to their TextChannel entities
+        TextChannel[] channels = Arrays.stream(channelIds)
+                                       .mapToObj(id -> api.getTextChannelById(id))
+                                       .toArray(TextChannel[]::new);
+        sendMessage(message, channels);
     }
 
     /**

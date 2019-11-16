@@ -156,6 +156,18 @@ public class MessageFormatter
     }
 
     /**
+     * Adds a string replacement.
+     *
+     * @param target      string to be replaced
+     * @param replacement string to replace with
+     * @return a reference to this object
+     */
+    public MessageFormatter addReplacement(String target, String replacement)
+    {
+        return add(Pattern.compile(Pattern.quote(target)), match -> replacement);
+    }
+
+    /**
      * Adds a new regex replacement.
      *
      * @param regex    regex pattern to match
