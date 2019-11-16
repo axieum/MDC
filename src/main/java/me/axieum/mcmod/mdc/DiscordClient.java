@@ -176,6 +176,7 @@ public class DiscordClient extends ListenerAdapter
     public void sendMessage(String message, TextChannel... channels)
     {
         if (!isReady() || message.isEmpty()) return;
+        message = message.replaceAll("\\\\n", "\n"); // actual new-line
         for (TextChannel channel : channels) {
             if (channel == null) continue;
             try {

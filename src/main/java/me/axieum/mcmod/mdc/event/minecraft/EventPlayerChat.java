@@ -24,6 +24,7 @@ public class EventPlayerChat
 
         final String name = player.getName().getFormattedText();
         final String body = StringUtils.mcToDiscord(event.getMessage());
+        if (body.isEmpty()) return;
         final String dimension = PlayerUtils.getDimensionName(player);
 
         // Prepare formatter

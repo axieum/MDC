@@ -49,6 +49,8 @@ public class StringUtils
     {
         final JDA discord = DiscordClient.getInstance().getApi();
         return new MessageFormatter()
+                // Escape special characters
+                .add(Pattern.compile("\\\\n"), "")
                 // Translate italics, bold and strikethrough to markdown
                 .add(Pattern.compile("(?<=[\u00A7]o)(.+?)(?=\\s?[\u00A7]r|$)"), "_$1_")
                 .add(Pattern.compile("(?<=[\u00A7]l)(.+?)(?=\\s?[\u00A7]r|$)"), "**$1**")
