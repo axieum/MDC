@@ -66,7 +66,7 @@ public class DiscordClient extends ListenerAdapter
     {
         // Are we already connected?
         if (api != null) {
-            MDC.LOGGER.debug("Discord bot is already connected!");
+            MDC.LOGGER.info("Discord bot is already connected!");
             return false;
         }
 
@@ -79,7 +79,7 @@ public class DiscordClient extends ListenerAdapter
                     .addEventListeners(listeners.toArray())
                     .build();
 
-            MDC.LOGGER.debug("Discord bot connecting...");
+            MDC.LOGGER.info("Discord bot connecting...");
             api.awaitReady(); // synchronous - easier to handle sending starting messages
             return true;
         } catch (Exception e) {
@@ -97,14 +97,14 @@ public class DiscordClient extends ListenerAdapter
     {
         // Are we already disconnected?
         if (api == null) {
-            MDC.LOGGER.debug("Discord bot is already disconnected!");
+            MDC.LOGGER.info("Discord bot is already disconnected!");
             return false;
         }
 
         // Shutdown the JDA instance and hence delete its reference
         api.shutdown();
         api = null;
-        MDC.LOGGER.debug("Discord bot disconnected");
+        MDC.LOGGER.info("Discord bot disconnected");
         return true;
     }
 
@@ -116,7 +116,7 @@ public class DiscordClient extends ListenerAdapter
      */
     public boolean reconnect(String token)
     {
-        MDC.LOGGER.debug("Discord bot reconnecting...");
+        MDC.LOGGER.info("Discord bot reconnecting...");
 
         final OnlineStatus oldStatus = api.getPresence().getStatus();
 
