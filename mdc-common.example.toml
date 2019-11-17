@@ -1,26 +1,160 @@
-
 #General configuration
 [general]
 
-	[general.bot]
-		#Discord Bot Token
-		token = ""
+    [general.bot]
+        #Discord Bot Token
+        token = ""
+        #Bot presence update interval (in seconds)
+        #Range: 12 ~ 9223372036854775807
+        presence_interval = 30
+
+        [general.bot.status]
+            #Bot status on server starting
+            #Allowed Values: ONLINE, IDLE, DO_NOT_DISTURB, INVISIBLE, OFFLINE, UNKNOWN
+            starting = "IDLE"
+            #Bot status on server started
+            #Allowed Values: ONLINE, IDLE, DO_NOT_DISTURB, INVISIBLE, OFFLINE, UNKNOWN
+            started = "ONLINE"
+            #Bot status on server stopping
+            #Allowed Values: ONLINE, IDLE, DO_NOT_DISTURB, INVISIBLE, OFFLINE, UNKNOWN
+            stopping = "DO_NOT_DISTURB"
+            #Bot status on server stopped
+            #Allowed Values: ONLINE, IDLE, DO_NOT_DISTURB, INVISIBLE, OFFLINE, UNKNOWN
+            stopped = "OFFLINE"
+
+        #Presence definitions
+        [[general.bot.presences]]
+            #Presence name (i.e. "... name")
+            #Allowed Values: DATETIME|format, UPTIME|format, PLAYER_COUNT, MAX_PLAYERS, MOTD, TPS, TPS_TIME, WORLD
+            name = "for {{UPTIME}}"
+            #Presence type (i.e. "Playing ...")
+            #Allowed Values: DEFAULT, STREAMING, LISTENING, WATCHING
+            type = "DEFAULT"
+
+        [[general.bot.presences]]
+            #Presence name (i.e. "... name")
+            #Allowed Values: DATETIME|format, UPTIME|format, PLAYER_COUNT, MAX_PLAYERS, MOTD, TPS, TPS_TIME, WORLD
+            name = "YouTube"
+            #Presence type (i.e. "Playing ...")
+            #Allowed Values: DEFAULT, STREAMING, LISTENING, WATCHING
+            type = "WATCHING"
+            #Presence url
+            url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+
+    [general.chat]
+        #Should unicode emojis be translated to word form (i.e. ':emoji:')
+        emoji_translation = true
+
+    [general.commands]
+        #Discord command prefix
+        prefix = "!"
+        #Discord command unauthorised message
+        unauthorised = "**{{MENTION}}**, you were unauthorised to perform this action :no_good:"
 
 #Channel configurations
 [[channels]]
-	id = 242318118340805120
-	dimensions = [0]
+    #Discord channel ID
+    id = 252348118840845121
+    #Minecraft dimension IDs to listen to (blank for all)
+    dimensions = [-1, 0, 1]
 
-	[channels.messages]
-		started = "**Server started!** (took {ELAPSED|s.S's'}) :ok_hand:"
-		stopping = "**Server stopping...** ({DATE|d/MM/yyyy '@' hh:mma}) :raised_hand:"
-		stopped = "**Server stopped!** (after {UPTIME|d'd' H'hr' m'mins' s'secs'}) :no_entry:"
-		crashed = "**Server crash detected!** (after {UPTIME|d'd' H'hr' m'mins' s'secs'}) :warning:"
+    #Minecraft events being translated into Discord
+    [channels.minecraft]
+        #Server started message
+        #Allowed Values: DATETIME|format, ELAPSED|format
+        started = "**Server started!** (took {{ELAPSED|s.S's'}}) :ok_hand:"
+        #Server is stopping message
+        #Allowed Values: DATETIME|format, UPTIME|format
+        stopping = "**Server stopping...** ({{DATETIME|d/MM/yyyy '@' hh:mma}}) :raised_hand:"
+        #Server stopped message
+        #Allowed Values: DATETIME|format, ELAPSED|format
+        stopped = "**Server stopped!** (uptime {{UPTIME}}) :no_entry:"
+        #Server potentially crashed message
+        #Allowed Values: DATETIME|format, ELAPSED|format
+        crashed = "**Server crash detected!** (after {{UPTIME|d'd' H'hr' m'mins' s'secs'}}) :warning:"
+        #Player joined the server message
+        #Allowed Values: DATETIME|format, PLAYER, DIMENSION, X, Y, Z
+        join = "`{{DIMENSION}}` **{{PLAYER}}** joined! :wave:"
+        #Player left the server message
+        #Allowed Values: DATETIME|format, ELAPSED|format, PLAYER, DIMENSION, X, Y, Z
+        leave = "`{{DIMENSION}}` **{{PLAYER}}** logged out after _{{ELAPSED}}_. :door:"
+        #Player died message
+        #Allowed Values: DATETIME|format, PLAYER, CAUSE, HOLDING|default, DIMENSION, X, Y, Z
+        death = "**{{PLAYER}}** {{CAUSE}} in {{DIMENSION}}! _They were holding {{HOLDING|nothing}}._"
+        #Player made an advancement
+        #Allowed Values: DATETIME|format, PLAYER, TYPE, TITLE, DESCRIPTION
+        advancement = "**{{PLAYER}}** completed the {{TYPE}} **{{TITLE}}**!\\n_{{DESCRIPTION}}_"
+        #Player chat
+        #Allowed Values: DATETIME|format, PLAYER, MESSAGE, DIMENSION
+        chat = "`{{DIMENSION}}` **{{PLAYER}}** > {{MESSAGE}}"
+        #Player changed dimension
+        #Allowed Values: DATETIME|format, PLAYER, DIMENSION, X, Y, Z
+        dimension = "**{{PLAYER}}** entered {{DIMENSION}}."
+
+    #Discord events being translated into Minecraft
+    [channels.discord]
+        #Discord message received
+        #Allowed Values: DATETIME|format, AUTHOR, MESSAGE
+        chat = "<§b{{AUTHOR}}§r> {{MESSAGE}}"
+        #Discord reaction added
+        #Allowed Values: DATETIME|format, AUTHOR, REACTOR, EMOTE, MESSAGE|limit
+        react = "<§b{{REACTOR}}§r> reacted with §6{{EMOTE}} §rto <§b{{AUTHOR}}§r>"
+        #Discord reaction removed
+        #Allowed Values: DATETIME|format, AUTHOR, REACTOR, EMOTE, MESSAGE|limit
+        unreact = "<§b{{REACTOR}}§r> unreacted with §6{{EMOTE}} §rto <§b{{AUTHOR}}§r>"
+        #Discord attachment(s) received
+        #Allowed Values: DATETIME|format, AUTHOR, ATTACHMENT_URLS
+        attachment = "<§b{{AUTHOR}}§r> sent {{ATTACHMENT_URLS}}"
 
 [[channels]]
-	id = 262311018300915141
-	dimensions = [-1, 1]
+    #Discord channel ID
+	id = 232618118380875120
+	#Minecraft dimension IDs to listen to (blank for all)
+	dimensions = []
 
-	[channels.messages]
-		started = "**Server started!** (@ {DATE|h:mma}) :ok_hand:"
+    #Minecraft events being translated into Discord
+	[channels.minecraft]
+        #Player died message
+        #Allowed Values: DATETIME|format, PLAYER, CAUSE, HOLDING|default, DIMENSION, X, Y, Z
+        death = "**{{PLAYER}}** {{CAUSE}} in {{DIMENSION}}! _They were holding {{HOLDING|nothing}}._"
 
+#Command configurations
+[[commands]]
+    #Primary name to execute on
+    name = "whitelist"
+    #Description of command
+    description = "Whitelist management"
+    #Command to execute on the Minecraft server
+    #Allowed Values: {n} for nth argument, {} for all
+    command = "whitelist {*}"
+    #Aliases accepted alongside the name
+    aliases = ["enroll", "wl"]
+    #Is this command enabled for use?
+    enabled = true
+    #Should this command NOT send output/feedback?
+    quiet = false
+    #Channels this command can be executed from (blank for all)
+    channels = [395351376929119481]
+    #Permissions required to execute (blank for everyone)
+    #Allowed Values: user:ID, user:Username#Tag, role:ID, Username#Tag
+    permissions = ["role:251653132447129601", "user:_Axieum#1337", "JohnDoe#8008"]
+
+[[commands]]
+    #Primary name to execute on
+    name = "list"
+    #Description of command
+    description = "List all online players"
+    #Command to execute on the Minecraft server
+    #Allowed Values: {n} for nth argument, {*} for all
+    command = "list"
+    #Aliases accepted alongside the name
+    aliases = ["online"]
+    #Is this command enabled for use?
+    enabled = true
+    #Should this command NOT send output/feedback?
+    quiet = false
+    #Channels this command can be executed from (blank for all)
+    channels = []
+    #Permissions required to execute (blank for everyone)
+    #Allowed Values: user:ID, user:Username#Tag, role:ID, Username#Tag
+    permissions = []
