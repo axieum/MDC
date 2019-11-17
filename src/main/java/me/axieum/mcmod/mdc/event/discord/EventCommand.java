@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class EventCommand
         final Member member = event.getMember();
         final TextChannel channel = event.getTextChannel();
 
-        final List<String> args = Arrays.asList(body.split("\\s"));
+        final List<String> args = new ArrayList<>(Arrays.asList(body.split("\\s")));
         final String cmd = args.remove(0)
                                .substring(Config.COMMAND_PREFIX.get().length());
 
@@ -72,7 +73,7 @@ public class EventCommand
 
             isCommand = true;
             if (command.isAuthorised(member, channel))
-                proxyMinecraftCommand(member, channel, command.getCommand(), args);
+                proxyMinecraftCommand(member, channel, command.isQuiet(), command.getCommand(), args);
             else
                 discord.sendMessage(unauthorisedMsg, channel);
         }
@@ -85,23 +86,28 @@ public class EventCommand
      *
      * @param member  Discord member whom is executing
      * @param channel Discord channel command issued from
+     * @param quiet   True if command output/feedback should be silenced
      * @param command command template/format
      * @param args    command arguments (i.e. "/whitelist add" -> ["whitelist", "add"])
      */
-    private static void proxyMinecraftCommand(Member member, TextChannel channel, String command, List<String> args)
+    private static void proxyMinecraftCommand(Member member,
+                                              TextChannel channel,
+                                              boolean quiet,
+                                              String command,
+                                              List<String> args)
     {
         // Replace placeholders (i.e. "{{0}}" -> argument #1)
         for (int i = 0; i < args.size(); i++)
-            command = command.replaceAll("\\{\\{" + i + "}}", args.get(i));
+            command = command.replaceAll("\\{" + i + "}", args.get(i));
 
         // Replace "{{*}}" with all arguments
-        command = command.replaceAll("\\{\\{\\*}}", String.join(" ", args));
+        command = command.replaceAll("\\{\\*}", String.join(" ", args));
 
         // Replace all left over placeholders
-        command = command.replaceAll("\\{\\{\\d*}}", "").trim();
+        command = command.replaceAll("\\{\\d*}", "").trim();
 
         // Do we have permission to execute commands on the server?
-        final MDCCommandSender sender = new MDCCommandSender(member, channel);
+        final MDCCommandSender sender = new MDCCommandSender(member, channel, quiet);
         if (sender.hasPermissionLevel(4)) {
             MDC.LOGGER.warn("MDC (uuid={}) does not have sufficient permission level (4) to execute commands.",
                             sender.getUniqueID().toString());
