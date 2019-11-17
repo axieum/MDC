@@ -5,11 +5,10 @@ import me.axieum.mcmod.mdc.DiscordClient;
 import me.axieum.mcmod.mdc.MDC;
 import me.axieum.mcmod.mdc.api.ChannelsConfig.ChannelConfig;
 import me.axieum.mcmod.mdc.util.MessageFormatter;
+import me.axieum.mcmod.mdc.util.ServerUtils;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
-
-import java.time.Duration;
 
 @Mod.EventBusSubscriber
 public class EventServerStopped
@@ -17,16 +16,19 @@ public class EventServerStopped
     @SubscribeEvent
     public static void onServerStopped(FMLServerStoppedEvent event)
     {
+        final DiscordClient discord = DiscordClient.getInstance();
+
+        // Set the Bot status
+        discord.getApi().getPresence().setStatus(Config.BOT_STATUS_STOPPED.get());
+
         final boolean crashed = MDC.stoppingAt == 0;
 
         // Prepare formatter
         final MessageFormatter formatter = new MessageFormatter()
                 .addDateTime("DATETIME")
-                .addDuration("UPTIME",
-                             Duration.ofMillis(System.currentTimeMillis() - MDC.startedAt));
+                .addDuration("UPTIME", ServerUtils.getUptime());
 
         // Format and send messages
-        final DiscordClient discord = DiscordClient.getInstance();
         for (ChannelConfig channel : Config.getChannels()) {
             // Fetch the message format - whether crashed or not
             String message = crashed ? channel.getMCMessages().crashed

@@ -1,6 +1,7 @@
 package me.axieum.mcmod.mdc;
 
 import me.axieum.mcmod.mdc.event.discord.EventChat;
+import me.axieum.mcmod.mdc.event.discord.EventPresence;
 import me.axieum.mcmod.mdc.event.discord.EventReact;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -29,7 +30,8 @@ public class MDC
 
         // Register Discord event listeners
         DiscordClient.getInstance().addEventListeners(new EventChat(),
-                                                      new EventReact());
+                                                      new EventReact(),
+                                                      new EventPresence());
 
         // Register Discord commands (not config level)
 //        DiscordClient.getInstance().addCommands(new CommandPing());
@@ -45,7 +47,7 @@ public class MDC
     public static void onServerStarting(FMLServerStartingEvent event)
     {
         // Prepare the Discord client and connect the bot
-        DiscordClient.getInstance().connect(Config.BOT_TOKEN.get());
+        DiscordClient.getInstance().connect(Config.BOT_TOKEN.get(), Config.BOT_STATUS_STARTING.get());
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

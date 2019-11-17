@@ -6,6 +6,8 @@ import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
 import me.axieum.mcmod.mdc.api.ChannelsConfig;
 import me.axieum.mcmod.mdc.api.CommandsConfig;
+import me.axieum.mcmod.mdc.api.PresencesConfig;
+import net.dv8tion.jda.api.OnlineStatus;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -26,6 +28,10 @@ public class Config
 
     private static final String CATEGORY_GENERAL = "general";
     public static ForgeConfigSpec.ConfigValue<String> BOT_TOKEN, COMMAND_PREFIX, COMMAND_UNAUTHORISED;
+    public static ForgeConfigSpec.EnumValue<OnlineStatus> BOT_STATUS_STARTING, BOT_STATUS_STARTED, BOT_STATUS_STOPPING,
+            BOT_STATUS_STOPPED;
+    public static ForgeConfigSpec.LongValue BOT_PRESENCE_INTERVAL;
+    private static PresencesConfig BOT_PRESENCES_TABLE;
     public static ForgeConfigSpec.BooleanValue EMOJI_TRANSLATION;
 
     private static final String CATEGORY_COMMANDS = "commands";
@@ -42,6 +48,21 @@ public class Config
         BOT_TOKEN = COMMON_BUILDER.comment("Discord bot token")
                                   .define("bot.token", "");
 
+        BOT_STATUS_STARTING = COMMON_BUILDER.comment("Bot status on server starting")
+                                            .defineEnum("bot.status.starting", OnlineStatus.IDLE);
+        BOT_STATUS_STARTED = COMMON_BUILDER.comment("Bot status on server started")
+                                           .defineEnum("bot.status.started", OnlineStatus.ONLINE);
+        BOT_STATUS_STOPPING = COMMON_BUILDER.comment("Bot status on server stopping")
+                                            .defineEnum("bot.status.stopping", OnlineStatus.DO_NOT_DISTURB);
+        BOT_STATUS_STOPPED = COMMON_BUILDER.comment("Bot status on server stopped")
+                                           .defineEnum("bot.status.stopped", OnlineStatus.OFFLINE);
+
+        BOT_PRESENCE_INTERVAL = COMMON_BUILDER.comment("Bot presence update interval (in seconds)")
+                                              .defineInRange("bot.presence_interval", 30, 12, Long.MAX_VALUE);
+
+        COMMON_BUILDER.comment("Presence definitions")
+                      .define("bot.presences", new ArrayList<>()); // presences table
+
         EMOJI_TRANSLATION = COMMON_BUILDER.comment("Should unicode emojis be translated to word form (i.e. ':emoji:')")
                                           .define("chat.emoji_translation", true);
 
@@ -50,7 +71,7 @@ public class Config
 
         COMMAND_UNAUTHORISED = COMMON_BUILDER.comment("Discord command unauthorised message")
                                              .define("commands.unauthorised",
-                                                     "{MENTION}, you were unauthorised to perform this action :no_good:");
+                                                     "{{MENTION}}, you were unauthorised to perform this action :no_good:");
 
         COMMON_BUILDER.pop();
 
@@ -64,6 +85,17 @@ public class Config
 
         // Publish config
         COMMON_CONFIG = COMMON_BUILDER.build();
+    }
+
+    /**
+     * Retrieve presence configuration object instances.
+     *
+     * @return list of PresenceConfig instances (from config tables)
+     */
+    public static List<PresencesConfig.PresenceConfig> getPresences()
+    {
+        return BOT_PRESENCES_TABLE.presences != null ? BOT_PRESENCES_TABLE.presences
+                                                     : Collections.emptyList();
     }
 
     /**
@@ -95,6 +127,7 @@ public class Config
      */
     public static void transform(CommentedConfig configData)
     {
+        BOT_PRESENCES_TABLE = new ObjectConverter().toObject(configData, PresencesConfig::new);
         CHANNELS_TABLE = new ObjectConverter().toObject(configData, ChannelsConfig::new);
         COMMANDS_TABLE = new ObjectConverter().toObject(configData, CommandsConfig::new);
     }
@@ -126,16 +159,14 @@ public class Config
         final ModConfig cfg = event.getConfig();
 
         // Is this our configuration being reloaded?
-        if (!cfg.getModId().equals("mdc"))
-            return;
+        if (!cfg.getModId().equals("mdc")) return;
 
         // Handle transformations
         transform(cfg.getConfigData());
 
-        // Did the bot token update?
-        final String token = BOT_TOKEN.get();
-        final DiscordClient dc = DiscordClient.getInstance();
-        if (dc.isReady() && !dc.getApi().getToken().equals(token))
-            dc.reconnect(token);
+        // Reconnect the Discord bot if already connected
+        final DiscordClient discord = DiscordClient.getInstance();
+        if (discord.isReady())
+            discord.reconnect(BOT_TOKEN.get());
     }
 }

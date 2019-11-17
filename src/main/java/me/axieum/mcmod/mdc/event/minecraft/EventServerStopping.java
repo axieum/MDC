@@ -2,14 +2,12 @@ package me.axieum.mcmod.mdc.event.minecraft;
 
 import me.axieum.mcmod.mdc.Config;
 import me.axieum.mcmod.mdc.DiscordClient;
-import me.axieum.mcmod.mdc.MDC;
 import me.axieum.mcmod.mdc.api.ChannelsConfig.ChannelConfig;
 import me.axieum.mcmod.mdc.util.MessageFormatter;
+import me.axieum.mcmod.mdc.util.ServerUtils;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
-
-import java.time.Duration;
 
 @Mod.EventBusSubscriber
 public class EventServerStopping
@@ -17,14 +15,17 @@ public class EventServerStopping
     @SubscribeEvent
     public static void onServerStopping(FMLServerStoppingEvent event)
     {
+        final DiscordClient discord = DiscordClient.getInstance();
+
+        // Set the Bot status
+        discord.getApi().getPresence().setStatus(Config.BOT_STATUS_STOPPING.get());
+
         // Prepare formatter
         final MessageFormatter formatter = new MessageFormatter()
                 .addDateTime("DATETIME")
-                .addDuration("UPTIME",
-                             Duration.ofMillis(System.currentTimeMillis() - MDC.startedAt));
+                .addDuration("UPTIME", ServerUtils.getUptime());
 
         // Format and send messages
-        final DiscordClient discord = DiscordClient.getInstance();
         for (ChannelConfig channel : Config.getChannels()) {
             // Fetch the message format
             String message = channel.getMCMessages().stopping;

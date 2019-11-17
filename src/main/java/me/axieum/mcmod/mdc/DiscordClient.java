@@ -58,10 +58,11 @@ public class DiscordClient extends ListenerAdapter
     /**
      * Connect to the Discord Bot with the provided token.
      *
-     * @param token Discord Bot token
+     * @param token  Discord Bot token
+     * @param status Initial Discord Bot presence status
      * @return true if the bot successfully connected
      */
-    public boolean connect(String token)
+    public boolean connect(String token, OnlineStatus status)
     {
         // Are we already connected?
         if (api != null) {
@@ -73,7 +74,7 @@ public class DiscordClient extends ListenerAdapter
         try {
             api = new JDABuilder(AccountType.BOT)
                     .setToken(token)
-                    .setStatus(OnlineStatus.ONLINE)
+                    .setStatus(status != null ? status : OnlineStatus.ONLINE)
                     .addEventListeners(this)
                     .addEventListeners(listeners.toArray())
                     .build();
@@ -115,13 +116,15 @@ public class DiscordClient extends ListenerAdapter
      */
     public boolean reconnect(String token)
     {
+        MDC.LOGGER.debug("Discord bot reconnecting...");
+
+        final OnlineStatus oldStatus = api.getPresence().getStatus();
+
         // Do we need to disconnect?
         if (api != null)
             disconnect();
 
-        MDC.LOGGER.debug("Discord bot reconnecting...");
-
-        return connect(token);
+        return connect(token, oldStatus);
     }
 
     /**

@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -118,7 +119,23 @@ public class MessageFormatter
         final long millis = Math.abs(duration.toMillis());
         return add(token, match ->
                 match.size() > 2 ? DurationFormatUtils.formatDuration(millis, match.get(2))
-                                 : DurationFormatUtils.formatDurationHMS(millis));
+                                 : DurationFormatUtils.formatDurationWords(millis, true, true));
+    }
+
+    /**
+     * Adds a duration functional token.
+     *
+     * @param token    token name to match
+     * @param supplier duration supplier to use for replacements
+     * @return a reference to this object
+     */
+    public MessageFormatter addDuration(String token, Supplier<Duration> supplier)
+    {
+        return add(token, match -> {
+            final long millis = Math.abs(supplier.get().toMillis());
+            return match.size() > 2 ? DurationFormatUtils.formatDuration(millis, match.get(2))
+                                    : DurationFormatUtils.formatDurationWords(millis, true, true);
+        });
     }
 
     /**
@@ -151,7 +168,7 @@ public class MessageFormatter
         return add(token, match -> {
             try {
                 return String.format(match.get(2), args);
-            } catch (IllegalFormatException e) { return ""; }
+            } catch (IllegalFormatException | IndexOutOfBoundsException e) { return ""; }
         });
     }
 
@@ -217,6 +234,18 @@ public class MessageFormatter
     public MessageFormatter add(String token, String replacement)
     {
         return add(token, match -> replacement);
+    }
+
+    /**
+     * Adds a new token functional replacement.
+     *
+     * @param token    token name to match
+     * @param supplier plaintext replacement supplier
+     * @return a reference to this object
+     */
+    public MessageFormatter add(String token, Supplier<String> supplier)
+    {
+        return add(token, match -> supplier.get());
     }
 
     /**
