@@ -49,6 +49,7 @@
         #Discord command prefix
         prefix = "!"
         #Discord command unauthorised message
+        #Allowed Values: MENTION, COMMAND, ARGS
         unauthorised = "**{{MENTION}}**, you were unauthorised to perform this action :no_good:"
 
 #Channel configurations
