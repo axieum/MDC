@@ -28,7 +28,7 @@ public class ChannelsConfig
         public boolean listensToDimension(int dimensionId)
         {
             if (dimensions == null || dimensions.isEmpty())
-                return false;
+                return true;
             return dimensions.stream().anyMatch(id -> id == dimensionId);
         }
 
