@@ -1,5 +1,30 @@
+
+![MDC Logo](logo.png)
+
 # MDC
 > Unify the Minecraft <-> Discord chat
+
+## Features
+* Flexible configuration
+* Multiple channel support
+* Lots of message placeholders to personalise your Discord chat
+* Filter by dimension
+  * Have messages from specific dimensions go to specific channels
+  * Have messages from specific channels go to specific dimensions
+* Full markdown support
+  * Enable or disable emoji translations (i.e. `:emoji_name:`)
+    * May be useful if a custom font allows you to use unicode characters?
+* Many Minecraft message events
+  * `started`, `stopping`, `stopped`, `crashed`, `join`, `leave`, `death`, `advancement`, `chat`, `dimension`
+* Some Discord message events
+  * `chat`, `react`, `unreact`, `attachment`
+* Proxy Minecraft commands through Discord
+  * Configure Discord commands that can execute commands on the server
+  * Customise the command prefix (i.e. `!command`)
+  * Full control of Discord member permissions and channels per command
+* Periodically update the presence of the Bot (i.e. "Playing ...")
+  * This will rotate through presence entries in the config
+* _An API for developers to register their own Discord commands*_
 
 ## Commands
 Note, that it is required you add the following UUID as an operator in order to execute protected commands `3665cd17-b83f-43b3-848c-e4d305271340`.
