@@ -18,7 +18,7 @@ public class EventServerStopping
         final DiscordClient discord = DiscordClient.getInstance();
 
         // Set the Bot status
-        discord.getApi().getPresence().setStatus(Config.BOT_STATUS_STOPPING.get());
+        discord.setBotStatus(Config.BOT_STATUS_STOPPING.get());
 
         // Prepare formatter
         final MessageFormatter formatter = new MessageFormatter()

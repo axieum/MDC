@@ -19,7 +19,7 @@ public class EventServerStarted
         final DiscordClient discord = DiscordClient.getInstance();
 
         // Set the Bot status
-        discord.getApi().getPresence().setStatus(Config.BOT_STATUS_STARTED.get());
+        discord.setBotStatus(Config.BOT_STATUS_STARTED.get());
 
         // Prepare formatter
         final MessageFormatter formatter = new MessageFormatter()

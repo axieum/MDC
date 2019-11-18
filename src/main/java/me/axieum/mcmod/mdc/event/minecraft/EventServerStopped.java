@@ -19,7 +19,7 @@ public class EventServerStopped
         final DiscordClient discord = DiscordClient.getInstance();
 
         // Set the Bot status
-        discord.getApi().getPresence().setStatus(Config.BOT_STATUS_STOPPED.get());
+        discord.setBotStatus(Config.BOT_STATUS_STOPPED.get());
 
         final boolean crashed = MDC.stoppingAt == 0;
 

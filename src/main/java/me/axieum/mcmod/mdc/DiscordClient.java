@@ -83,7 +83,7 @@ public class DiscordClient extends ListenerAdapter
             api.awaitReady(); // synchronous - easier to handle sending starting messages
             return true;
         } catch (Exception e) {
-            MDC.LOGGER.error("Unable to connect to the Discord bot: {}", e.getMessage());
+            MDC.LOGGER.warn("Unable to connect to the Discord bot: {}", e.getMessage());
             return false;
         }
     }
@@ -168,6 +168,17 @@ public class DiscordClient extends ListenerAdapter
     public List<DiscordCommand> getCommands()
     {
         return Collections.unmodifiableList(commands);
+    }
+
+    /**
+     * Sets the presence status for the bot.
+     *
+     * @param status online status
+     */
+    public void setBotStatus(OnlineStatus status)
+    {
+        if (isReady() && status != OnlineStatus.UNKNOWN)
+            api.getPresence().setStatus(status);
     }
 
     /**
