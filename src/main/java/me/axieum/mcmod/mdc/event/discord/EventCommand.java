@@ -58,6 +58,8 @@ public class EventCommand
                 continue;
 
             isCommand = true;
+            if (command.shouldIgnore(member, channel)) continue;
+
             if (command.isAuthorised(member, channel))
                 command.execute(member, channel, args);
             else

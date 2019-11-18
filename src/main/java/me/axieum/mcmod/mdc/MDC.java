@@ -1,5 +1,6 @@
 package me.axieum.mcmod.mdc;
 
+import me.axieum.mcmod.mdc.command.discord.CommandTPS;
 import me.axieum.mcmod.mdc.event.discord.EventChat;
 import me.axieum.mcmod.mdc.event.discord.EventPresence;
 import me.axieum.mcmod.mdc.event.discord.EventReact;
@@ -34,7 +35,8 @@ public class MDC
                                                       new EventPresence());
 
         // Register Discord commands (not config level)
-//        DiscordClient.getInstance().addCommands(new CommandPing());
+        if (Config.COMMAND_TPS_ENABLED.get())
+            DiscordClient.getInstance().addCommands(new CommandTPS());
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

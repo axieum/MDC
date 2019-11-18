@@ -24,6 +24,15 @@ public interface DiscordCommand
     boolean isAuthorised(Member executor, TextChannel channel);
 
     /**
+     * Returns whether this command should ignore.
+     *
+     * @param executor Discord member whom is executing
+     * @param channel  Discord text channel command was issued from
+     * @return true if the command should be ignored - no response at all
+     */
+    boolean shouldIgnore(Member executor, TextChannel channel);
+
+    /**
      * Handle execution of the command.
      *
      * @param executor Discord member whom is executing

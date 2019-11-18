@@ -52,6 +52,20 @@
         #Allowed Values: MENTION, COMMAND, ARGS
         unauthorised = "**{{MENTION}}**, you were unauthorised to perform this action :no_good:"
 
+        #TPS Discord command
+        [general.commands.tps]
+            #Command names/aliases to trigger on
+            aliases = ["tps", "ticks"]
+            #Is the TPS command enabled for use?
+            enabled = true
+            #Minecraft dimension IDs to report TPS status (blank for all)
+            dimensions = []
+            #Channels this command can be executed from (blank for all)
+            channels = []
+            #Permissions required to execute (blank for everyone)
+            #Allowed Values: user:ID, user:Username#Tag, role:ID, Username#Tag
+            permissions = []
+
 #Channel configurations
 [[channels]]
     #Discord channel ID
@@ -81,10 +95,10 @@
         leave = "`{{DIMENSION}}` **{{PLAYER}}** logged out after _{{ELAPSED}}_. :door:"
         #Player died message
         #Allowed Values: DATETIME|format, PLAYER, CAUSE, HOLDING|default, DIMENSION, X, Y, Z
-        death = "**{{PLAYER}}** {{CAUSE}} in {{DIMENSION}}! _They were holding {{HOLDING|nothing}}._"
+        death = "**{{PLAYER}}** {{CAUSE}} in {{DIMENSION}}! :skull:"
         #Player made an advancement
         #Allowed Values: DATETIME|format, PLAYER, TYPE, TITLE, DESCRIPTION
-        advancement = "**{{PLAYER}}** completed the {{TYPE}} **{{TITLE}}**!\\n_{{DESCRIPTION}}_"
+        advancement = "**{{PLAYER}}** completed the {{TYPE}} **{{TITLE}}**! :confetti_ball:\\n_{{DESCRIPTION}}_"
         #Player chat
         #Allowed Values: DATETIME|format, PLAYER, MESSAGE, DIMENSION
         chat = "`{{DIMENSION}}` **{{PLAYER}}** > {{MESSAGE}}"
@@ -109,15 +123,15 @@
 
 [[channels]]
     #Discord channel ID
-	id = 232618118380875120
-	#Minecraft dimension IDs to listen to (blank for all)
-	dimensions = []
+    id = 232618118380875120
+    #Minecraft dimension IDs to listen to (blank for all)
+    dimensions = []
 
     #Minecraft events being translated into Discord
-	[channels.minecraft]
+    [channels.minecraft]
         #Player died message
         #Allowed Values: DATETIME|format, PLAYER, CAUSE, HOLDING|default, DIMENSION, X, Y, Z
-        death = "**{{PLAYER}}** {{CAUSE}} in {{DIMENSION}}! _They were holding {{HOLDING|nothing}}._"
+        death = "**{{PLAYER}}** {{CAUSE}} in {{DIMENSION}}! :skull:\\n_They were holding {{HOLDING|nothing}} at {{X}}, {{Y}}, {{Z}}._"
 
 #Command configurations
 [[commands]]

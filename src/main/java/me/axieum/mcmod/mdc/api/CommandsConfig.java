@@ -1,7 +1,7 @@
 package me.axieum.mcmod.mdc.api;
 
+import me.axieum.mcmod.mdc.util.DiscordUtils;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.ArrayList;
@@ -149,26 +149,7 @@ public class CommandsConfig
             if (member == null || channel == null) return false;
             if (getPermissions().isEmpty()) return true;
 
-            // Check permissions
-            final List<Role> roles = member.getRoles();
-            return getPermissions().stream().anyMatch(permission -> {
-                // Check users
-                if (permission.startsWith("user:")) {
-                    String user = permission.substring(5);
-                    if (user.equals(member.getId()) || user.equals(member.getUser().getAsTag()))
-                        return true;
-                }
-
-                // Check roles
-                if (permission.startsWith("role:")) {
-                    String role = permission.substring(5);
-                    if (roles.stream().anyMatch(r -> r.getId().equals(role)))
-                        return true;
-                }
-
-                // Fallback to matching "user#discriminator"
-                return permission.equals(member.getUser().getAsTag());
-            });
+            return DiscordUtils.checkAnyPermission(member, getPermissions());
         }
     }
 }

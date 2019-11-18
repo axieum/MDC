@@ -22,6 +22,12 @@ public class CommandPing implements DiscordCommand
     }
 
     @Override
+    public boolean shouldIgnore(Member executor, TextChannel channel)
+    {
+        return false;
+    }
+
+    @Override
     public void execute(Member executor, TextChannel channel, List<String> args)
     {
         channel.sendMessage("pong!").queue();

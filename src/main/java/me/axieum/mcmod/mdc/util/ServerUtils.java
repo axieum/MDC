@@ -1,6 +1,8 @@
 package me.axieum.mcmod.mdc.util;
 
 import me.axieum.mcmod.mdc.MDC;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import java.time.Duration;
@@ -41,6 +43,16 @@ public class ServerUtils
     }
 
     /**
+     * Returns a dimension's current average TPS.
+     *
+     * @return current average ticks per second for dimension
+     */
+    public static double getAverageTPS(DimensionType dimension)
+    {
+        return Math.min(1000f / getAverageTPSTime(dimension), 20);
+    }
+
+    /**
      * Returns the server's current average TPS time.
      *
      * @return current average tick time
@@ -51,6 +63,31 @@ public class ServerUtils
                                    .average()
                                    .orElse(0);
         return meanTPS * 1e-6d;
+    }
+
+    /**
+     * Returns a dimension's current average TPS time.
+     *
+     * @return current average tick time for dimension
+     */
+    public static double getAverageTPSTime(DimensionType dimension)
+    {
+        final long[] tickArray = ServerLifecycleHooks.getCurrentServer().getTickTime(dimension);
+        return tickArray == null ? 0 : LongStream.of(tickArray).average().orElse(0) * 1e-6d;
+    }
+
+    /**
+     * Get dimension name in title format.
+     *
+     * @param dimension dimension to derive name from
+     * @return dimension friendly title
+     */
+    public static String getDimensionName(DimensionType dimension)
+    {
+        // NB: Appears there is no way to get translated dimension name
+        final ResourceLocation dimKey = DimensionType.getKey(dimension);
+        return dimKey != null ? StringUtils.strToTitle(dimKey.getPath(), '_')
+                              : "";
     }
 
     /**
