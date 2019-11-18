@@ -2,7 +2,7 @@
 ![MDC Logo](logo.png)
 
 # MDC
-> Unify the Minecraft <-> Discord chat
+> Unify the Minecraft ⟷ Discord chat
 
 ## Features
 * Flexible configuration
