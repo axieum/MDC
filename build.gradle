@@ -6,15 +6,17 @@ buildscript {
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath "com.github.jengelman.gradle.plugins:shadow:4.0.4"
     }
 }
 
+apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 
 version = "${MOD_VERSION_MAJOR}.${MOD_VERSION_MINOR}.${MOD_VERSION_REVIS}"
 group = "${MOD_CLASS}.${MOD_ID}"
-archivesBaseName = "${MOD_ID}"
+archivesBaseName = "${MOD_ID}-${MINECRAFT_VERSION}"
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
@@ -65,16 +67,43 @@ minecraft {
     }
 }
 
+configurations {
+    shade
+    compile.extendsFrom shade
+}
+
 dependencies {
     minecraft "net.minecraftforge:forge:${FORGE_VERSION}"
-    compile "org.apache.commons:commons-lang3:${LANG3_VERSION}"
-    compile "net.dv8tion:JDA:${JDA_VERSION}"
-    compile "com.vdurmont:emoji-java:${EMOJI_JAVA_VERSION}"
+    shade "net.dv8tion:JDA:${JDA_VERSION}"
+    shade "com.vdurmont:emoji-java:${EMOJI_JAVA_VERSION}"
 }
 
 repositories {
     jcenter()
     mavenCentral()
+}
+
+shadowJar {
+    configurations = [project.configurations.shade]
+    relocate 'club.minnced', 'mdcshadow.club.minnced'
+    relocate 'com.fasterxml', 'mdcshadow.fasterxml'
+    relocate 'com.iwebpp', 'mdcshadow.com.iwebpp'
+    relocate 'com.neovisionaries', 'mdcshadow.com.neovisionaries'
+    relocate 'com.sun', 'mdcshadow.com.sun'
+    relocate 'com.vdurmont', 'mdcshadow.com.vdurmont'
+    relocate 'gnu', 'mdcshadow.gnu'
+    relocate 'okhttp3', 'mdcshadow.okhttp'
+    relocate 'okio', 'mdcshadow.okio'
+    relocate 'org.apache.commons.collections4', 'mdcshadow.apache-collections4'
+    relocate 'org.intellij', 'mdcshadow.intellij'
+    relocate 'org.jetbrains', 'mdcshadow.jetbrains'
+    relocate 'org.json', 'mdcshadow.org.json'
+    relocate 'org.slf4j', 'mdcshadow.slf4j'
+    relocate 'tomp2p', 'mdcshadow.tomp2p'
+}
+
+artifacts {
+    archives tasks.shadowJar
 }
 
 jar {
