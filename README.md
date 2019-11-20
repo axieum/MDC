@@ -4,6 +4,8 @@
 # MDC
 > Unify the Minecraft ⟷ Discord chat
 
+_Please see the [wiki](https://github.com/Axieum/MDC/wiki) for help on getting started!_
+
 ## Features
 * Flexible configuration
 * Multiple channel support
