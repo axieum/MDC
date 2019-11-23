@@ -1,7 +1,6 @@
 package me.axieum.mcmod.mdc.util;
 
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -22,8 +21,12 @@ public class PlayerUtils
      */
     public static void sendAllMessage(ITextComponent component)
     {
-        for (ServerPlayerEntity player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers())
-            player.sendMessage(component);
+        ServerLifecycleHooks.getCurrentServer()
+                            .getPlayerList().getPlayers()
+                            .forEach(player -> player.sendMessage(component));
+
+        // Inform server/console
+        ServerLifecycleHooks.getCurrentServer().sendMessage(component);
     }
 
     /**
@@ -34,14 +37,18 @@ public class PlayerUtils
      */
     public static void sendAllMessage(ITextComponent component, List<Integer> dimensionIds)
     {
-        if (dimensionIds != null && !dimensionIds.isEmpty())
-            for (ServerPlayerEntity player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers()) {
-                final int playerDimId = player.dimension.getId();
-                if (dimensionIds.stream().anyMatch(dimensionId -> playerDimId == dimensionId))
-                    player.sendMessage(component);
-            }
-        else
+        if (dimensionIds != null && !dimensionIds.isEmpty()) {
+            ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers()
+                                .stream()
+                                .filter(player -> dimensionIds.contains(player.dimension.getId()))
+                                .forEach(player -> player.sendMessage(component));
+
+            // Inform server/console
+            ServerLifecycleHooks.getCurrentServer().sendMessage(component);
+        } else {
+            // If there are no dimensions specified, send to all players
             sendAllMessage(component);
+        }
     }
 
     /**
@@ -54,8 +61,7 @@ public class PlayerUtils
     {
         // NB: Appears there is no way to get translated dimension name
         final ResourceLocation dimKey = DimensionType.getKey(player.dimension);
-        return dimKey != null ? StringUtils.strToTitle(dimKey.getPath(), '_')
-                              : "";
+        return dimKey != null ? StringUtils.strToTitle(dimKey.getPath(), '_') : "";
     }
 
     /**
@@ -74,14 +80,11 @@ public class PlayerUtils
      * Compute duration in milliseconds since the player logged in.
      *
      * @param player player
-     * @return milliseconds since login
+     * @return milliseconds since login or 0 if unable to find
      */
     public static long getSessionPlayTime(PlayerEntity player)
     {
-        // Do we have their login time? This shouldn't ever happen.
-        if (loginTimes.get(player) == null)
-            return 0;
-
-        return System.currentTimeMillis() - loginTimes.get(player);
+        final Long playTime = loginTimes.get(player);
+        return playTime != null ? System.currentTimeMillis() - playTime : 0;
     }
 }
