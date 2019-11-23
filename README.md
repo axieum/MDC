@@ -19,7 +19,8 @@ _Please see the [wiki](https://github.com/Axieum/MDC/wiki) for help on getting s
 * Many Minecraft message events
   * `started`, `stopping`, `stopped`, `crashed`, `join`, `leave`, `death`, `advancement`, `chat`, `dimension`
 * Some Discord message events
-  * `chat`, `react`, `unreact`, `attachment`
+  * `chat`, `edit`, `react`, `unreact`, `attachment`
+* Built-in and configurable TPS and uptime commands
 * Proxy Minecraft commands through Discord
   * Configure Discord commands that can execute commands on the server
   * Customise the command prefix (i.e. `!command`)
