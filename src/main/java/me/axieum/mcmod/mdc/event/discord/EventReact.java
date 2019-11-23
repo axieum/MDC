@@ -43,11 +43,10 @@ public class EventReact implements EventListener
         final String emote = event.getReactionEmote().getName();
 
         // Fetch useful information about the context of the reaction
-        // TODO: May need to check if author is the bot, in which case the
-        //       author may not represent the actual author. Perhaps, prefix
-        //       the body with the non-bot author?
-        final String author = event.getMember() != null ? event.getMember().getEffectiveName()
-                                                        : context.getAuthor().getName();
+        // NB: If the author is the bot, the author may not represent
+        //     the actual author!
+        final String author = context.getMember() != null ? context.getMember().getEffectiveName()
+                                                          : context.getAuthor().getName();
         final String body = StringUtils.discordToMc(context.getContentDisplay());
 
         // Prepare formatter
