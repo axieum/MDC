@@ -1,6 +1,7 @@
 package me.axieum.mcmod.mdc;
 
 import me.axieum.mcmod.mdc.command.discord.CommandTPS;
+import me.axieum.mcmod.mdc.command.discord.CommandUptime;
 import me.axieum.mcmod.mdc.event.discord.EventChat;
 import me.axieum.mcmod.mdc.event.discord.EventPresence;
 import me.axieum.mcmod.mdc.event.discord.EventReact;
@@ -37,6 +38,8 @@ public class MDC
         // Register Discord commands (not config level)
         if (Config.COMMAND_TPS_ENABLED.get())
             DiscordClient.getInstance().addCommands(new CommandTPS());
+        if (Config.COMMAND_UPTIME_ENABLED.get())
+            DiscordClient.getInstance().addCommands(new CommandUptime());
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
