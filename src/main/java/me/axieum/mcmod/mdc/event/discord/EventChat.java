@@ -1,6 +1,5 @@
 package me.axieum.mcmod.mdc.event.discord;
 
-import me.axieum.mcmod.mdc.DiscordClient;
 import me.axieum.mcmod.mdc.util.MessageFormatter;
 import me.axieum.mcmod.mdc.util.PlayerUtils;
 import me.axieum.mcmod.mdc.util.StringUtils;
@@ -24,7 +23,7 @@ public class EventChat implements EventListener
         // Should we handle this chat event?
         // NB: bots or ourselves
         if (event.getAuthor().isBot() ||
-            event.getAuthor().getId().equals(DiscordClient.getInstance().getApi().getSelfUser().getId()))
+            event.getAuthor().getId().equals(event.getJDA().getSelfUser().getId()))
             return;
 
         // On regular chat message event, attempt treat as a command, else chat

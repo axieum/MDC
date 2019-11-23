@@ -88,12 +88,12 @@ shadowJar {
     configurations = [project.configurations.shade]
     relocate 'club.minnced', 'mdcshadow.club.minnced'
     relocate 'com.fasterxml', 'mdcshadow.fasterxml'
+    relocate 'com.github.difflib', 'mdcshadow.com.github.difflib'
     relocate 'com.iwebpp', 'mdcshadow.com.iwebpp'
     relocate 'com.neovisionaries', 'mdcshadow.com.neovisionaries'
     relocate 'com.sun', 'mdcshadow.com.sun'
     relocate 'com.vdurmont', 'mdcshadow.com.vdurmont'
     relocate 'gnu', 'mdcshadow.gnu'
-    relocate 'io.github.java-diff-utils', 'mdcshadow.io.github.java-diff-utils'
     relocate 'okhttp3', 'mdcshadow.okhttp'
     relocate 'okio', 'mdcshadow.okio'
     relocate 'org.apache.commons.collections4', 'mdcshadow.apache-collections4'

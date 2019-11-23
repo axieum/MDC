@@ -66,6 +66,21 @@
             #Allowed Values: user:ID, user:Username#Tag, role:ID, Username#Tag
             permissions = []
 
+        #Uptime Discord command
+        [general.commands.uptime]
+            #Command names/aliases to trigger on
+            aliases = ["uptime"]
+            #Is the uptime command enabled for use?
+            enabled = true
+            #Message response format
+            #Allowed Values: MENTION, UPTIME|format
+            format = "The server has been online for {{UPTIME}} :hourglass_flowing_sand:"
+            #Channels this command can be executed from (blank for all)
+            channels = []
+            #Permissions required to execute (blank for everyone)
+            #Allowed Values: user:ID, user:Username#Tag, role:ID, Username#Tag
+            permissions = []
+
 #Channel configurations
 [[channels]]
     #Discord channel ID
@@ -111,6 +126,9 @@
         #Discord message received
         #Allowed Values: DATETIME|format, AUTHOR, MESSAGE
         chat = "<§b{{AUTHOR}}§r> {{MESSAGE}}"
+        #Discord message updated/edited
+        #Allowed Values: DATETIME|format, AUTHOR, OLD, NEW, DIFFERENCE
+        edit = "<§b{{AUTHOR}}§r> {{DIFFERENCE}}"
         #Discord reaction added
         #Allowed Values: DATETIME|format, AUTHOR, REACTOR, EMOTE, MESSAGE|limit
         react = "<§b{{REACTOR}}§r> reacted with §6{{EMOTE}} §rto <§b{{AUTHOR}}§r>"
