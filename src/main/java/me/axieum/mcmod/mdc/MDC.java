@@ -3,6 +3,7 @@ package me.axieum.mcmod.mdc;
 import me.axieum.mcmod.mdc.command.discord.CommandTPS;
 import me.axieum.mcmod.mdc.command.discord.CommandUptime;
 import me.axieum.mcmod.mdc.event.discord.EventChat;
+import me.axieum.mcmod.mdc.event.discord.EventEdit;
 import me.axieum.mcmod.mdc.event.discord.EventPresence;
 import me.axieum.mcmod.mdc.event.discord.EventReact;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -32,6 +33,7 @@ public class MDC
 
         // Register Discord event listeners
         DiscordClient.getInstance().addEventListeners(new EventChat(),
+                                                      new EventEdit(),
                                                       new EventReact(),
                                                       new EventPresence());
 

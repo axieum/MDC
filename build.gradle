@@ -76,6 +76,7 @@ dependencies {
     minecraft "net.minecraftforge:forge:${FORGE_VERSION}"
     shade "net.dv8tion:JDA:${JDA_VERSION}"
     shade "com.vdurmont:emoji-java:${EMOJI_JAVA_VERSION}"
+    shade "io.github.java-diff-utils:java-diff-utils:${JAVA_DIFF_UTILS_VERSION}"
 }
 
 repositories {
@@ -92,6 +93,7 @@ shadowJar {
     relocate 'com.sun', 'mdcshadow.com.sun'
     relocate 'com.vdurmont', 'mdcshadow.com.vdurmont'
     relocate 'gnu', 'mdcshadow.gnu'
+    relocate 'io.github.java-diff-utils', 'mdcshadow.io.github.java-diff-utils'
     relocate 'okhttp3', 'mdcshadow.okhttp'
     relocate 'okio', 'mdcshadow.okio'
     relocate 'org.apache.commons.collections4', 'mdcshadow.apache-collections4'
