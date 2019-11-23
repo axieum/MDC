@@ -11,7 +11,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
-import java.util.Collections;
 import java.util.List;
 
 public class CommandTPS implements DiscordCommand
@@ -19,9 +18,7 @@ public class CommandTPS implements DiscordCommand
     @Override
     public List<String> getNames()
     {
-        List<String> aliases = Config.COMMAND_TPS_ALIASES.get();
-        return aliases != null && !aliases.isEmpty() ? aliases
-                                                     : Collections.emptyList();
+        return Config.COMMAND_TPS_ALIASES.get();
     }
 
     @Override

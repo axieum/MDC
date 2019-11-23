@@ -119,6 +119,32 @@ public class Config
         COMMON_BUILDER.pop(3);
     }
 
+    // [general.commands.uptime]
+    public static BooleanValue COMMAND_UPTIME_ENABLED;
+    public static ConfigValue<List<String>> COMMAND_UPTIME_ALIASES, COMMAND_UPTIME_PERMISSIONS;
+    public static ConfigValue<List<Long>> COMMAND_UPTIME_CHANNELS;
+    public static ConfigValue<String> COMMAND_UPTIME_FORMAT;
+
+    static {
+        COMMON_BUILDER.comment("Uptime Discord command").push("general.commands.uptime");
+
+        COMMAND_UPTIME_ENABLED = COMMON_BUILDER.comment("Is the uptime command enabled for use?")
+                                               .define("enabled", true);
+        COMMAND_UPTIME_ALIASES = COMMON_BUILDER.comment("Command names/aliases to trigger on")
+                                               .define("aliases", Arrays.asList("uptime"));
+        COMMAND_UPTIME_PERMISSIONS = COMMON_BUILDER.comment("Permissions required to execute (blank for everyone)",
+                                                            "Allowed Values: user:ID, user:Username#Tag, role:ID, Username#Tag")
+                                                   .define("permissions", new ArrayList<>());
+        COMMAND_UPTIME_CHANNELS = COMMON_BUILDER.comment("Channels this command can be executed from (blank for all)")
+                                                .define("channels", new ArrayList<>());
+        COMMAND_UPTIME_FORMAT = COMMON_BUILDER.comment("Message response format",
+                                                       "Allowed Values: MENTION, UPTIME|format")
+                                              .define("format",
+                                                      "The server has been online for {{UPTIME}}");
+
+        COMMON_BUILDER.pop(3);
+    }
+
     // [[commands]]
     private static CommandsConfig COMMANDS_TABLE;
 
