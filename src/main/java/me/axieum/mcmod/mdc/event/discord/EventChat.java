@@ -1,8 +1,6 @@
 package me.axieum.mcmod.mdc.event.discord;
 
-import me.axieum.mcmod.mdc.Config;
 import me.axieum.mcmod.mdc.DiscordClient;
-import me.axieum.mcmod.mdc.api.ChannelsConfig;
 import me.axieum.mcmod.mdc.util.MessageFormatter;
 import me.axieum.mcmod.mdc.util.PlayerUtils;
 import me.axieum.mcmod.mdc.util.StringUtils;
@@ -10,8 +8,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraftforge.common.ForgeHooks;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -59,15 +55,8 @@ public class EventChat implements EventListener
                 .add("AUTHOR", author)
                 .add("MESSAGE", body);
 
-        // Format and send messages
-        for (ChannelsConfig.ChannelConfig channel : Config.getChannels()) {
-            // Fetch the message format
-            String message = channel.getDiscordMessages().chat;
-            if (message == null || message.isEmpty()) continue;
-
-            // Send message
-            PlayerUtils.sendAllMessage(new StringTextComponent(formatter.apply(message)), channel.dimensions);
-        }
+        // Dispatch structured message
+        PlayerUtils.sendMessagesFromDiscord(formatter, "chat", event.getTextChannel().getIdLong(), false);
     }
 
     /**
@@ -92,14 +81,7 @@ public class EventChat implements EventListener
                 .add("AUTHOR", author)
                 .add("ATTACHMENT_URLS", String.join(",", attachmentUrls));
 
-        // Format and send messages
-        for (ChannelsConfig.ChannelConfig channel : Config.getChannels()) {
-            // Fetch the message format
-            String message = channel.getDiscordMessages().attachment;
-            if (message == null || message.isEmpty()) continue;
-
-            // Send message
-            PlayerUtils.sendAllMessage(ForgeHooks.newChatWithLinks(formatter.apply(message)), channel.dimensions);
-        }
+        // Dispatch structured message
+        PlayerUtils.sendMessagesFromDiscord(formatter, "attachment", event.getTextChannel().getIdLong(), true);
     }
 }

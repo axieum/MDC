@@ -1,5 +1,8 @@
 package me.axieum.mcmod.mdc.util;
 
+import me.axieum.mcmod.mdc.Config;
+import me.axieum.mcmod.mdc.DiscordClient;
+import me.axieum.mcmod.mdc.api.ChannelsConfig.ChannelConfig;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 
@@ -8,6 +11,30 @@ import java.util.function.Predicate;
 
 public class DiscordUtils
 {
+    /**
+     * Sends all structured messages defined in the configuration file to
+     * Discord from Minecraft. Performs dimension checks.
+     *
+     * @param formatter   Message Formatter instance
+     * @param key         config channel message key/property
+     * @param dimensionId dimension ID in context
+     */
+    public static void sendMessagesFromMinecraft(MessageFormatter formatter, String key, Integer dimensionId)
+    {
+        final DiscordClient discord = DiscordClient.getInstance();
+        for (ChannelConfig channel : Config.getChannels()) {
+            // Does this config entry listen to this dimension?
+            if (dimensionId != null && !channel.listensToDimension(dimensionId)) continue;
+
+            // Fetch the message format for the key
+            String message = channel.getMCMessages().valueOf(key);
+            if (message == null || message.isEmpty()) continue;
+
+            // Send message
+            discord.sendMessage(formatter.apply(message), channel.id);
+        }
+    }
+
     /**
      * Checks permission entries for ALL match on a given Guild member's
      * permissions.

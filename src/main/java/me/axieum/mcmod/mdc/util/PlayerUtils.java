@@ -1,10 +1,14 @@
 package me.axieum.mcmod.mdc.util;
 
+import me.axieum.mcmod.mdc.Config;
+import me.axieum.mcmod.mdc.api.ChannelsConfig.ChannelConfig;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import java.util.HashMap;
@@ -13,6 +17,33 @@ import java.util.List;
 public class PlayerUtils
 {
     public static HashMap<PlayerEntity, Long> loginTimes = new HashMap<>();
+
+    /**
+     * Sends all structured messages defined in the configuration file to
+     * Minecraft from a Discord channel. Performs channel checks.
+     *
+     * @param formatter Message Formatter instance
+     * @param key       config channel message key/property
+     * @param channelId Discord Guild channel ID in context
+     * @param links     true if URLs should be formatted
+     */
+    public static void sendMessagesFromDiscord(MessageFormatter formatter, String key, Long channelId, boolean links)
+    {
+        for (ChannelConfig channel : Config.getChannels()) {
+            // Does this config entry listen to this channel?
+            if (channelId != null && channel.id != channelId) continue;
+
+            // Fetch the message format
+            String message = channel.getDiscordMessages().valueOf(key);
+            if (message == null || message.isEmpty()) continue;
+
+            // Send message
+            if (links)
+                PlayerUtils.sendAllMessage(ForgeHooks.newChatWithLinks(formatter.apply(message)), channel.dimensions);
+            else
+                PlayerUtils.sendAllMessage(new StringTextComponent(formatter.apply(message)), channel.dimensions);
+        }
+    }
 
     /**
      * Send a message to all online players.

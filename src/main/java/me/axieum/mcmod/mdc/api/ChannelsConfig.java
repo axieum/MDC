@@ -73,6 +73,40 @@ public class ChannelsConfig
                     stopping,
                     stopped,
                     crashed;
+
+            /**
+             * Returns the message format of the given key/property.
+             *
+             * @param key config channel message key/property name
+             * @return message format for given key
+             */
+            public String valueOf(String key)
+            {
+                switch (key) {
+                    case "join":
+                        return join;
+                    case "leave":
+                        return leave;
+                    case "dimension":
+                        return dimension;
+                    case "death":
+                        return death;
+                    case "advancement":
+                        return advancement;
+                    case "chat":
+                        return chat;
+                    case "started":
+                        return started;
+                    case "stopping":
+                        return stopping;
+                    case "stopped":
+                        return stopped;
+                    case "crashed":
+                        return crashed;
+                    default:
+                        return null;
+                }
+            }
         }
 
         /**
@@ -81,6 +115,30 @@ public class ChannelsConfig
         public static class DiscordMessages
         {
             public String chat, attachment, react, unreact, edit;
+
+            /**
+             * Returns the message format of the given key/property.
+             *
+             * @param key config channel message key/property name
+             * @return message format for given key
+             */
+            public String valueOf(String key)
+            {
+                switch (key) {
+                    case "chat":
+                        return chat;
+                    case "attachment":
+                        return attachment;
+                    case "react":
+                        return react;
+                    case "unreact":
+                        return unreact;
+                    case "edit":
+                        return edit;
+                    default:
+                        return null;
+                }
+            }
         }
     }
 }

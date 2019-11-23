@@ -2,7 +2,7 @@ package me.axieum.mcmod.mdc.event.minecraft;
 
 import me.axieum.mcmod.mdc.Config;
 import me.axieum.mcmod.mdc.DiscordClient;
-import me.axieum.mcmod.mdc.api.ChannelsConfig.ChannelConfig;
+import me.axieum.mcmod.mdc.util.DiscordUtils;
 import me.axieum.mcmod.mdc.util.MessageFormatter;
 import me.axieum.mcmod.mdc.util.ServerUtils;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -26,14 +26,7 @@ public class EventServerStarted
                 .addDateTime("DATETIME")
                 .addDuration("ELAPSED", ServerUtils.getStartupTime());
 
-        // Format and send messages
-        for (ChannelConfig channel : Config.getChannels()) {
-            // Fetch the message format
-            String message = channel.getMCMessages().started;
-            if (message == null || message.isEmpty()) continue;
-
-            // Send message
-            discord.sendMessage(formatter.apply(message), channel.id);
-        }
+        // Dispatch structured message
+        DiscordUtils.sendMessagesFromMinecraft(formatter, "started", null);
     }
 }

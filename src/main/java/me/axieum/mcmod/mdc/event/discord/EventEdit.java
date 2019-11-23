@@ -16,7 +16,6 @@ import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
-import net.minecraft.util.text.StringTextComponent;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -100,15 +99,8 @@ public class EventEdit implements EventListener
                 .add("NEW", StringUtils.discordToMc(bodyNew))
                 .add("DIFFERENCE", StringUtils.discordToMc(bodyDiff));
 
-        // Format and send messages
-        for (ChannelConfig channel : Config.getChannels()) {
-            // Fetch the message format
-            String message = channel.getDiscordMessages().edit;
-            if (message == null || message.isEmpty()) continue;
-
-            // Send message
-            PlayerUtils.sendAllMessage(new StringTextComponent(formatter.apply(message)), channel.dimensions);
-        }
+        // Dispatch structured message
+        PlayerUtils.sendMessagesFromDiscord(formatter, "edit", event.getTextChannel().getIdLong(), false);
     }
 
     /**

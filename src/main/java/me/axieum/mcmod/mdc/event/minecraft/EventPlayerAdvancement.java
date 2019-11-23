@@ -1,8 +1,6 @@
 package me.axieum.mcmod.mdc.event.minecraft;
 
-import me.axieum.mcmod.mdc.Config;
-import me.axieum.mcmod.mdc.DiscordClient;
-import me.axieum.mcmod.mdc.api.ChannelsConfig.ChannelConfig;
+import me.axieum.mcmod.mdc.util.DiscordUtils;
 import me.axieum.mcmod.mdc.util.MessageFormatter;
 import net.minecraft.advancements.DisplayInfo;
 import net.minecraftforge.event.entity.player.AdvancementEvent;
@@ -35,18 +33,7 @@ public class EventPlayerAdvancement
                 .add("TITLE", title)
                 .add("DESCRIPTION", description);
 
-        // Format and send messages
-        final DiscordClient discord = DiscordClient.getInstance();
-        for (ChannelConfig channel : Config.getChannels()) {
-            // Fetch the message format
-            String message = channel.getMCMessages().advancement;
-            if (message == null || message.isEmpty()) continue;
-
-            // Does this config entry listen to this dimension?
-            if (!channel.listensToDimension(dimensionId)) continue;
-
-            // Send message
-            discord.sendMessage(formatter.apply(message), channel.id);
-        }
+        // Dispatch structured message
+        DiscordUtils.sendMessagesFromMinecraft(formatter, "advancement", dimensionId);
     }
 }

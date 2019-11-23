@@ -1,8 +1,6 @@
 package me.axieum.mcmod.mdc.event.minecraft;
 
-import me.axieum.mcmod.mdc.Config;
-import me.axieum.mcmod.mdc.DiscordClient;
-import me.axieum.mcmod.mdc.api.ChannelsConfig;
+import me.axieum.mcmod.mdc.util.DiscordUtils;
 import me.axieum.mcmod.mdc.util.MessageFormatter;
 import me.axieum.mcmod.mdc.util.PlayerUtils;
 import me.axieum.mcmod.mdc.util.StringUtils;
@@ -34,18 +32,7 @@ public class EventPlayerChat
                 .add("MESSAGE", body)
                 .add("DIMENSION", dimension);
 
-        // Format and send messages
-        final DiscordClient discord = DiscordClient.getInstance();
-        for (ChannelsConfig.ChannelConfig channel : Config.getChannels()) {
-            // Fetch the message format
-            String message = channel.getMCMessages().chat;
-            if (message == null || message.isEmpty()) continue;
-
-            // Does this config entry listen to this dimension?
-            if (!channel.listensToDimension(dimensionId)) continue;
-
-            // Send message
-            discord.sendMessage(formatter.apply(message), channel.id);
-        }
+        // Dispatch structured message
+        DiscordUtils.sendMessagesFromMinecraft(formatter, "chat", dimensionId);
     }
 }

@@ -3,7 +3,6 @@ package me.axieum.mcmod.mdc.event.discord;
 import com.vdurmont.emoji.EmojiParser;
 import me.axieum.mcmod.mdc.Config;
 import me.axieum.mcmod.mdc.MDC;
-import me.axieum.mcmod.mdc.api.ChannelsConfig;
 import me.axieum.mcmod.mdc.util.MessageFormatter;
 import me.axieum.mcmod.mdc.util.PlayerUtils;
 import me.axieum.mcmod.mdc.util.StringUtils;
@@ -12,7 +11,6 @@ import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
-import net.minecraft.util.text.StringTextComponent;
 
 import javax.annotation.Nonnull;
 
@@ -71,15 +69,10 @@ public class EventReact implements EventListener
                     }
                 });
 
-        // Format and send messages
-        for (ChannelsConfig.ChannelConfig channel : Config.getChannels()) {
-            // Fetch the message format (added/removed reaction)
-            String message = added ? channel.getDiscordMessages().react
-                                   : channel.getDiscordMessages().unreact;
-            if (message == null || message.isEmpty()) continue;
-
-            // Send message
-            PlayerUtils.sendAllMessage(new StringTextComponent(formatter.apply(message)), channel.dimensions);
-        }
+        // Dispatch structured message
+        PlayerUtils.sendMessagesFromDiscord(formatter,
+                                            added ? "react" : "unreact",
+                                            event.getTextChannel().getIdLong(),
+                                            false);
     }
 }
