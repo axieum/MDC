@@ -17,6 +17,7 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class EventCommand
 {
@@ -31,37 +32,38 @@ public class EventCommand
         // Is this a command - starts with prefix?
         // NB: bailing out as soon as possible saves us from checking every
         // registered command's names - a fixed prefix has performance benefits
-        final String body = event.getMessage().getContentRaw();
-        if (!body.startsWith(Config.COMMAND_PREFIX.get())) return false;
+        String body = event.getMessage().getContentRaw();
+        final String prefix = Config.COMMAND_PREFIX.get();
+        if (!body.startsWith(prefix)) return false;
+        // Strip the prefix off the command for convenience
+        body = body.substring(prefix.length());
 
         // Fetch relevant information
         final DiscordClient discord = DiscordClient.getInstance();
         final Member member = event.getMember();
         final TextChannel channel = event.getTextChannel();
 
-        final List<String> args = new ArrayList<>(Arrays.asList(body.split("\\s")));
-        final String cmd = args.remove(0)
-                               .substring(Config.COMMAND_PREFIX.get().length());
-
         final String unauthorisedMsg = new MessageFormatter()
                 .add("MENTION", event.getAuthor().getAsMention())
-                .add("COMMAND", cmd)
-                .add("ARGS", args.toString())
+                .add("COMMAND", body)
                 .apply(Config.COMMAND_UNAUTHORISED.get());
 
         // Keep track of whether we handled a command or not
-        boolean isCommand = false;
+        boolean commandFound = false;
 
         // Attempt to match this command with its registered handler(s)
         for (DiscordCommand command : discord.getCommands()) {
-            if (command.getNames().stream().noneMatch(name -> name.equalsIgnoreCase(cmd)))
-                continue;
+            // Fetch first command match
+            Optional<String> cmd = command.getNames().stream().filter(body::startsWith).findFirst();
+            if (!cmd.isPresent()) continue;
+            commandFound = true;
 
-            isCommand = true;
             if (command.shouldIgnore(member, channel)) continue;
 
             if (command.isAuthorised(member, channel))
-                command.execute(member, channel, args);
+                command.execute(member,
+                                channel,
+                                Arrays.asList(body.substring(cmd.get().length()).split("\\s")));
             else
                 discord.sendMessage(unauthorisedMsg, channel);
         }
@@ -70,17 +72,22 @@ public class EventCommand
         for (CommandsConfig.CommandConfig command : Config.getCommands()) {
             if (!command.isEnabled()) continue;
             if (command.shouldIgnore(member, channel)) continue;
-            if (command.getEffectiveNames().stream().noneMatch(name -> name.equalsIgnoreCase(cmd)))
-                continue;
 
-            isCommand = true;
+            Optional<String> cmd = command.getEffectiveNames().stream().filter(body::startsWith).findFirst();
+            if (!cmd.isPresent()) continue;
+            commandFound = true;
+
             if (command.isAuthorised(member, channel))
-                proxyMinecraftCommand(member, channel, command.isQuiet(), command.getCommand(), args);
+                proxyMinecraftCommand(member,
+                                      channel,
+                                      command.isQuiet(),
+                                      command.getCommand(),
+                                      Arrays.asList(body.substring(cmd.get().length()).split("\\s")));
             else
                 discord.sendMessage(unauthorisedMsg, channel);
         }
 
-        return isCommand;
+        return commandFound;
     }
 
     /**
@@ -89,8 +96,8 @@ public class EventCommand
      * @param member  Discord member whom is executing
      * @param channel Discord channel command issued from
      * @param quiet   True if command output/feedback should be silenced
-     * @param command command template/format
-     * @param args    command arguments (i.e. "/whitelist add" -> ["whitelist", "add"])
+     * @param command command template/format (e.g. "whitelist add {0}")
+     * @param args    command arguments (i.e. "/whitelist add" -> ["add"])
      */
     private static void proxyMinecraftCommand(Member member,
                                               TextChannel channel,
@@ -98,6 +105,10 @@ public class EventCommand
                                               String command,
                                               List<String> args)
     {
+        // Remove empty arguments (from accidental spaces, etc.)
+        args = new ArrayList<>(args); // wrap in list that supports removing elements
+        args.removeIf(String::isEmpty);
+
         // Replace placeholders (i.e. "{{0}}" -> argument #1)
         for (int i = 0; i < args.size(); i++)
             command = command.replaceAll("\\{" + i + "}", args.get(i));
@@ -110,7 +121,7 @@ public class EventCommand
 
         // Do we have permission to execute commands on the server?
         final MDCCommandSender sender = new MDCCommandSender(member, channel, quiet);
-        if (sender.hasPermissionLevel(4)) {
+        if (!sender.hasPermissionLevel(4)) {
             MDC.LOGGER.warn("MDC (uuid={}) does not have sufficient permission level (4) to execute commands.",
                             sender.getUniqueID().toString());
             channel.sendMessage(":warning: The bot does not have sufficient permissions!").queue();

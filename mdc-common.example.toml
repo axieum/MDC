@@ -49,7 +49,7 @@
         #Discord command prefix
         prefix = "!"
         #Discord command unauthorised message
-        #Allowed Values: MENTION, COMMAND, ARGS
+        #Allowed Values: MENTION, COMMAND
         unauthorised = "**{{MENTION}}**, you were unauthorised to perform this action :no_good:"
 
         #TPS Discord command
@@ -63,7 +63,7 @@
             #Channels this command can be executed from (blank for all)
             channels = []
             #Permissions required to execute (blank for everyone)
-            #Allowed Values: user:ID, user:Username#Tag, role:ID, Username#Tag
+            #Allowed Values: user:ID, user:Username#Tag, role:ID, role:Name, Username#Tag
             permissions = []
 
         #Uptime Discord command
@@ -78,7 +78,7 @@
             #Channels this command can be executed from (blank for all)
             channels = []
             #Permissions required to execute (blank for everyone)
-            #Allowed Values: user:ID, user:Username#Tag, role:ID, Username#Tag
+            #Allowed Values: user:ID, user:Username#Tag, role:ID, role:Name, Username#Tag
             permissions = []
 
 #Channel configurations
@@ -169,7 +169,7 @@
     #Channels this command can be executed from (blank for all)
     channels = [395351376929119481]
     #Permissions required to execute (blank for everyone)
-    #Allowed Values: user:ID, user:Username#Tag, role:ID, Username#Tag
+    #Allowed Values: user:ID, user:Username#Tag, role:ID, role:Name, Username#Tag
     permissions = ["role:251653132447129601", "user:_Axieum#1337", "JohnDoe#8008"]
 
 [[commands]]
@@ -189,5 +189,5 @@
     #Channels this command can be executed from (blank for all)
     channels = []
     #Permissions required to execute (blank for everyone)
-    #Allowed Values: user:ID, user:Username#Tag, role:ID, Username#Tag
+    #Allowed Values: user:ID, user:Username#Tag, role:ID, role:Name, Username#Tag
     permissions = []

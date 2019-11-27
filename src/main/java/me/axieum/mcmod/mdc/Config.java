@@ -88,7 +88,8 @@ public class Config
         COMMAND_PREFIX = COMMON_BUILDER.comment("Discord command prefix")
                                        .define("prefix", "!");
 
-        COMMAND_UNAUTHORISED = COMMON_BUILDER.comment("Discord command unauthorised message")
+        COMMAND_UNAUTHORISED = COMMON_BUILDER.comment("Discord command unauthorised message",
+                                                      "Allowed Values: MENTION, COMMAND")
                                              .define("unauthorised",
                                                      "**{{MENTION}}**, you were unauthorised to perform this action :no_good:");
 

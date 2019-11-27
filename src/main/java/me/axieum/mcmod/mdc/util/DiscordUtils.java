@@ -92,7 +92,7 @@ public class DiscordUtils
             // Check roles
             if (permission.startsWith("role:")) {
                 String role = permission.substring(5);
-                if (roles.stream().anyMatch(r -> r.getId().equals(role)))
+                if (roles.stream().anyMatch(r -> r.getId().equals(role) || r.getName().equals(role)))
                     return true;
             }
 
