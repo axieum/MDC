@@ -74,7 +74,7 @@ public class EventEdit implements EventListener
         // Fetch useful information
         final String author = event.getMember() != null ? event.getMember().getEffectiveName()
                                                         : event.getAuthor().getName();
-        final String bodyNew = StringUtils.discordToMc(event.getMessage().getContentDisplay());
+        final String bodyNew = event.getMessage().getContentDisplay();
         final String bodyOld = context.getContentDisplay();
 
         // Produce a diff between old and new message if we can
