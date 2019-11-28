@@ -1,5 +1,10 @@
+<p align="center"> <img src="logo.png"></a></p>
 
-![MDC Logo](logo.png)
+<p align="center">
+  <a href="https://github.com/Axieum/MDC/releases"><img src="https://img.shields.io/github/v/release/Axieum/MDC?include_prereleases"></a>
+  <a href="https://github.com/Axieum/MDC"><img src="https://img.shields.io/github/languages/code-size/Axieum/MDC" alt="Code Size"></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/github/license/Axieum/MDC" alt="License"></a>
+</p>
 
 # MDC
 > Unify the Minecraft ⟷ Discord chat
@@ -62,3 +67,13 @@ For example, `{{ELAPSED|H'hrs' m'mins' s'secs'}}`.
 | s         | seconds        |
 | S         | milliseconds   |
 | 'text'    | arbitrary text |
+
+## Acknowledgements
+
+- [JDA (Java Discord API)](https://github.com/DV8FromTheWorld/JDA)
+- [emoji-java](https://github.com/vdurmont/emoji-java)
+- [java-diff-utils](https://github.com/java-diff-utils/java-diff-utils)
+
+## License
+
+MDC is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
