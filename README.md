@@ -1,7 +1,9 @@
-<p align="center"> <img src="logo.png"></a></p>
+<p align="center">
+    <a href="https://github.com/Axieum/MDC"><img src="src/main/resources/logo.png" alt="MDC Logo"></a>
+</p>
 
 <p align="center">
-  <a href="https://github.com/Axieum/MDC/releases"><img src="https://img.shields.io/github/v/release/Axieum/MDC?include_prereleases"></a>
+  <a href="https://github.com/Axieum/MDC/releases"><img src="https://img.shields.io/github/v/release/Axieum/MDC?include_prereleases" alt="Release"></a>
   <a href="https://github.com/Axieum/MDC"><img src="https://img.shields.io/github/languages/code-size/Axieum/MDC" alt="Code Size"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/github/license/Axieum/MDC" alt="License"></a>
 </p>

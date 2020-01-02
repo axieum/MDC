@@ -1,28 +1,21 @@
 modLoader="javafml"
 loaderVersion="[28,)"
 issueTrackerURL="https://github.com/Axieum/MDC/issues"
-displayURL="https://github.com/Axieum/MDC"
-#logoFile="logo.png"
-authors="Axieum"
 
 [[mods]]
 modId="mdc"
 version="${file.jarVersion}"
-displayName="MDC"
+displayName="Minecraft Discord Chat"
+displayURL="https://github.com/Axieum/MDC"
+logoFile="logo.png"
+authors="Axieum"
 description='''
 Unify the Minecraft <-> Discord chat.
 '''
-
-[[dependencies.mdc]]
-    modId="forge"
-    mandatory=true
-    versionRange="[28,)"
-    ordering="NONE"
-    side="BOTH"
 
 [[dependencies.mdc]]
     modId="minecraft"
     mandatory=true
     versionRange="[1.14.4]"
     ordering="NONE"
-    side="BOTH"
+    side="SERVER"
