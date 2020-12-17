@@ -14,7 +14,7 @@ import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 public class EventServerStarted
 {
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onServerStarted(FMLServerStartedEvent event)
+    public static void onServerStarted(FMLServerStartedEvent event) throws InterruptedException
     {
         final DiscordClient discord = DiscordClient.getInstance();
 
@@ -28,5 +28,8 @@ public class EventServerStarted
 
         // Dispatch structured message
         DiscordUtils.sendMessagesFromMinecraft(formatter, "started", null);
+
+        // TODO - delete server crash
+        Thread.sleep(65000);
     }
 }

@@ -6,6 +6,7 @@ import me.axieum.mcmod.mdc.event.discord.EventChat;
 import me.axieum.mcmod.mdc.event.discord.EventEdit;
 import me.axieum.mcmod.mdc.event.discord.EventPresence;
 import me.axieum.mcmod.mdc.event.discord.EventReact;
+import me.axieum.mcmod.mdc.event.minecraft.EventServerCrashed;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -23,7 +24,7 @@ public class MDC
     public static final Logger LOGGER = LogManager.getLogger();
 
     // Timings in milliseconds - used in computing uptime and startup/shutdown duration
-    public static long startingAt = 0, startedAt = 0, stoppingAt = 0;
+    public static long startingAt = 0, startedAt = 0, stoppingAt = 0, stoppedAt = 0;
 
     public MDC()
     {
@@ -42,12 +43,24 @@ public class MDC
             DiscordClient.getInstance().addCommands(new CommandTPS());
         if (Config.COMMAND_UPTIME_ENABLED.get())
             DiscordClient.getInstance().addCommands(new CommandUptime());
+
+        // Manually trigger the crash handler should a forceful shutdown occur
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            // Skipped 'stopped' lifecycle event
+            if (MDC.stoppedAt == 0) {
+                try {
+                    EventServerCrashed.onServerCrashed();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }));
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onServerAboutToStart(FMLServerAboutToStartEvent event)
     {
-        startingAt = System.currentTimeMillis(); // accuracy with highest priority
+        startingAt = System.currentTimeMillis(); // accuracy with the highest priority
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
@@ -60,19 +73,21 @@ public class MDC
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onServerStarted(FMLServerStartedEvent event)
     {
-        startedAt = System.currentTimeMillis(); // accuracy with highest priority
+        startedAt = System.currentTimeMillis(); // accuracy with the highest priority
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onServerStopping(FMLServerStoppingEvent event)
     {
-        stoppingAt = System.currentTimeMillis(); // accuracy with highest priority
+        stoppingAt = System.currentTimeMillis(); // accuracy with the highest priority
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onServerStopped(FMLServerStoppedEvent event)
     {
+        stoppedAt = System.currentTimeMillis(); // accuracy with the lowest priority
+
         // Disconnect the Discord bot
-        DiscordClient.getInstance().disconnect();
+//        DiscordClient.getInstance().disconnect();
     }
 }

@@ -16,12 +16,12 @@ public class EventServerStopped
     @SubscribeEvent
     public static void onServerStopped(FMLServerStoppedEvent event)
     {
+        if (MDC.stoppingAt == 0) return;
+
         final DiscordClient discord = DiscordClient.getInstance();
 
         // Set the Bot status
         discord.setBotStatus(Config.BOT_STATUS_STOPPED.get());
-
-        final boolean crashed = MDC.stoppingAt == 0;
 
         // Prepare formatter
         final MessageFormatter formatter = new MessageFormatter()
@@ -29,6 +29,6 @@ public class EventServerStopped
                 .addDuration("UPTIME", ServerUtils.getUptime());
 
         // Dispatch structured message
-        DiscordUtils.sendMessagesFromMinecraft(formatter, crashed ? "crashed" : "stopped", null);
+        DiscordUtils.sendMessagesFromMinecraft(formatter, "stopped", null);
     }
 }

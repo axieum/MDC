@@ -125,7 +125,7 @@ public class EventEdit implements EventListener
             // Do we already have a history for this channel?
             histories.putIfAbsent(channel.getIdLong(), new LinkedCircularHashMap<>(HISTORY_SIZE));
 
-            MDC.LOGGER.debug("Eager-loading last {} messages from channel with ID '{}'", HISTORY_SIZE, channel.getId());
+            MDC.LOGGER.debug("Eager-loading last {} messages from the channel: '{}'", HISTORY_SIZE, channel.getName());
             final LinkedCircularHashMap<Long, Message> history = histories.get(channel.getIdLong());
             channel.getHistory()
                    .retrievePast(HISTORY_SIZE)

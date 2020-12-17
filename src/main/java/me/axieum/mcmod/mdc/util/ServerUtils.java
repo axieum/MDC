@@ -1,12 +1,20 @@
 package me.axieum.mcmod.mdc.util;
 
+import me.axieum.mcmod.mdc.Config;
 import me.axieum.mcmod.mdc.MDC;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
+import java.util.Comparator;
+import java.util.Optional;
 import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 public class ServerUtils
 {
@@ -129,5 +137,31 @@ public class ServerUtils
     public static String getWorldName()
     {
         return ServerLifecycleHooks.getCurrentServer().getWorldName();
+    }
+
+    /**
+     * Fetches the newest crash report from the configured directory.
+     *
+     * @return newest, optional crash report file
+     */
+    public static Optional<File> getLatestCrashReport()
+    {
+        // Use configured crash report directory, else fallback
+        String crashReportDir = Config.CRASH_REPORT_DIRECTORY.get();
+        if (crashReportDir == null || crashReportDir.isEmpty())
+            crashReportDir = "crash-reports";
+
+        System.out.println("Fetching latest crash report...");
+
+        final File crashReportFolder = ServerLifecycleHooks.getCurrentServer().getFile(crashReportDir);
+
+        try (Stream<Path> reports = Files.list(crashReportFolder.toPath())) {
+            return reports.filter(f -> !Files.isDirectory(f))
+                          .map(Path::toFile)
+                          .max(Comparator.comparingLong(File::lastModified));
+        } catch (IOException e) {
+            MDC.LOGGER.error("Unable to get the latest crash report!", e);
+            return Optional.empty();
+        }
     }
 }

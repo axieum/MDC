@@ -39,7 +39,7 @@ public class Config
     // [general.bot]
     public static ConfigValue<String> BOT_TOKEN;
     public static EnumValue<OnlineStatus> BOT_STATUS_STARTING, BOT_STATUS_STARTED, BOT_STATUS_STOPPING,
-            BOT_STATUS_STOPPED;
+            BOT_STATUS_STOPPED, BOT_STATUS_CRASHED;
     public static LongValue BOT_PRESENCE_INTERVAL;
     private static PresencesConfig BOT_PRESENCES_TABLE;
 
@@ -57,6 +57,8 @@ public class Config
                                             .defineEnum("status.stopping", OnlineStatus.DO_NOT_DISTURB);
         BOT_STATUS_STOPPED = COMMON_BUILDER.comment("Bot status on server stopped")
                                            .defineEnum("status.stopped", OnlineStatus.OFFLINE);
+        BOT_STATUS_CRASHED = COMMON_BUILDER.comment("Bot status on server crashed")
+                                           .defineEnum("status.crashed", OnlineStatus.IDLE);
 
         BOT_PRESENCE_INTERVAL = COMMON_BUILDER.comment("Bot presence update interval (in seconds)")
                                               .defineInRange("presence_interval", 30, 12, Long.MAX_VALUE);
@@ -75,6 +77,21 @@ public class Config
 
         EMOJI_TRANSLATION = COMMON_BUILDER.comment("Should unicode emojis be translated to word form (i.e. ':emoji:')")
                                           .define("emoji_translation", true);
+
+        COMMON_BUILDER.pop(2);
+    }
+
+    // [general.crash_reports]
+    public static ConfigValue<String> CRASH_REPORT_CHANNEL, CRASH_REPORT_DIRECTORY;
+
+    static {
+        COMMON_BUILDER.comment("Crash report handling configuration").push("general.crash_reports");
+
+        CRASH_REPORT_CHANNEL = COMMON_BUILDER.comment("Discord channel ID to upload latest crash reports")
+                                             .define("channel", "");
+
+        CRASH_REPORT_DIRECTORY = COMMON_BUILDER.comment("Minecraft server crash reports directory")
+                                               .define("directory", "./crash-reports");
 
         COMMON_BUILDER.pop(2);
     }
